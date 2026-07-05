@@ -1,130 +1,21 @@
-name: Build APK
+name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
   workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
 jobs:
-  build-apk:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: peaceiris/actions-gh-pages@v4
         with:
-          node-version: 20
-
-      - name: Install tools
-        run: |
-          npm install -g serve @pwabuilder/cli
-          curl -sL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /tmp/cloudflared
-          chmod +x /tmp/cloudflared
-
-      - name: Start local server
-        run: |
-          serve -s . -p 4000 &
-          sleep 3
-          curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/
-
-      - name: Create cloudflare tunnel
-        run: |
-          /tmp/cloudflared tunnel --url http://localhost:4000 --no-autoupdate > /tmp/tunnel.log 2>&1 &
-          for i in {1..20}; do
-            URL=$(grep -oP 'https://[a-zA-Z0-9.-]+\.trycloudflare\.com' /tmp/tunnel.log | head -1)
-            if [ -n "$URL" ]; then
-              echo "Tunnel: $URL"
-              echo "APK_URL=$URL" >> $GITHUB_ENV
-              break
-            fi
-            sleep 3
-          done
-          [ -n "$URL" ] || (cat /tmp/tunnel.log && exit 1)
-
-      - name: Build APK with PWABuilder CLI
-        run: |
-          URL="${{ env.APK_URL }}"
-          echo "Packaging: $URL"
-          pwabuilder package "$URL" --platform android 2>&1 || true
-          ls -la *.apk 2>/dev/null || echo "No APK found yet"
-
-      - name: Check for output APK
-        run: |
-          find . -name "*.apk" -o -name "*.zip" 2>/dev/null | head -10
-          ls -laR ./out 2>/dev/null || true
-          ls -laR ./download 2>/dev/null || true
-          # Check in home dir
-          find ~ -name "*.apk" -maxdepth 3 2>/dev/null | head -5
-
-      - name: Try PWABuilder API directly
-        run: |
-          URL="${{ env.APK_URL }}"
-          echo "Trying API packaging..."
-          RESP=$(curl -s -X POST "https://pwabuilder.com/api/package" \
-            -H "Content-Type: application/json" \
-            -d "{\"url\":\"$URL\",\"platform\":\"android\"}")
-          echo "Response length: $(echo "$RESP" | wc -c)"
-          echo "$RESP" | python3 -c "
-import sys, json
-try:
-    d = json.load(sys.stdin)
-    print(json.dumps(d, indent=2)[:1000])
-except:
-    print(sys.stdin.read()[:1000])
-" 2>/dev/null
-          # Try to find download URL in response
-          DL_URL=$(echo "$RESP" | grep -oP 'https?://[^"'"'"',\s}]+\.apk' | head -1)
-          if [ -n "$DL_URL" ]; then
-            echo "Found APK URL: $DL_URL"
-            curl -sL -o /tmp/c152.apk "$DL_URL"
-          fi
-          # Also try the v1 API
-          JOB_RESP=$(curl -s -X POST "https://api.pwabuilder.com/v1/package" \
-            -H "Content-Type: application/json" \
-            -d "{\"url\":\"$URL\",\"platform\":\"android\"}")
-          JOB_ID=$(echo "$JOB_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null)
-          if [ -n "$JOB_ID" ]; then
-            echo "Job ID: $JOB_ID"
-            for i in {1..20}; do
-              sleep 10
-              STATUS_RESP=$(curl -s "https://api.pwabuilder.com/v1/package/$JOB_ID")
-              STATUS=$(echo "$STATUS_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null)
-              echo "Status: $STATUS"
-              if [ "$STATUS" = "completed" ] || [ "$STATUS" = "success" ]; then
-                DL_URL=$(echo "$STATUS_RESP" | python3 -c "
-import sys,json
-d=json.load(sys.stdin)
-for key in ['packages','data','output','download']:
-    val = d.get(key, [])
-    if isinstance(val, list) and val:
-        print(val[0].get('url',''))
-        break
-    elif isinstance(val, dict):
-        print(val.get('url',''))
-        break
-" 2>/dev/null)
-                if [ -n "$DL_URL" ]; then
-                  echo "Downloading from: $DL_URL"
-                  curl -sL -o /tmp/c152.apk "$DL_URL"
-                fi
-                break
-              elif [ "$STATUS" = "failed" ]; then
-                echo "Job failed:"
-                echo "$STATUS_RESP" | head -c 500
-                break
-              fi
-            done
-          fi
-
-      - name: Upload APK
-        run: |
-          if [ -f /tmp/c152.apk ]; then
-            ls -la /tmp/c152.apk
-            echo "✅ APK found, uploading..."
-          else
-            echo "❌ No APK generated"
-            find / -name "*.apk" -maxdepth 4 2>/dev/null | head -5
-          fi
-      - uses: actions/upload-artifact@v4
-        if: success() || failure()
-        with:
-          name: c152-android-apk
-          path: /tmp/c152.apk
-          if-no-files-found: warn
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          force_orphan: true
+          enable_jekyll: false
