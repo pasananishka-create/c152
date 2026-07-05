@@ -1,12 +1,10 @@
-name: Deploy to GitHub Pages
+name: Deploy Pages & Build APK
 on:
   push:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -15,9 +13,60 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v4
-      - uses: actions/upload-pages-artifact@v3
+      - uses: peaceiris/actions-gh-pages@v4
         with:
-          path: .
-      - id: deploy
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          force_orphan: true
+          enable_jekyll: false
+  build-apk:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Pages
+        run: sleep 30
+      - name: Check Pages is live
+        run: |
+          URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || echo "000")
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
+              echo "PAGES_URL=$URL" >> $GITHUB_ENV
+              echo "Pages is live!"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "Pages did not become live"
+          exit 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build APK via PWABuilder API
+        run: |
+          URL="${{ env.PAGES_URL }}"
+          echo "Packaging: $URL"
+          RESP=$(curl -s -w "\n%{http_code}" -X POST "https://pwabuilder.com/api/package" \
+            -H "Content-Type: application/json" \
+            -d "{\"url\":\"$URL\",\"platform\":\"android\"}" 2>&1)
+          HTTP_CODE=$(echo "$RESP" | tail -1)
+          BODY=$(echo "$RESP" | head -n -1)
+          echo "HTTP $HTTP_CODE"
+          echo "$BODY" | head -c 2000
+          if [ "$HTTP_CODE" = "200" ]; then
+            DL_URL=$(echo "$BODY" | grep -oP '"url":"[^"]+' | head -1 | grep -oP 'https?://[^"]+')
+            if [ -n "$DL_URL" ]; then
+              echo "Downloading from: $DL_URL"
+              curl -sL -o c152.apk "$DL_URL"
+              ls -la c152.apk
+              echo "APK_BUILT=true" >> $GITHUB_ENV
+            fi
+          fi
+      - name: Upload APK
+        if: env.APK_BUILT == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: c152-android-apk
+          path: c152.apk
+          if-no-files-found: warn
