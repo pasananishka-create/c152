@@ -1,72 +1,69 @@
-name: Deploy Pages & Build APK
+name: Build APK
 on:
   push:
     branches: [main]
   workflow_dispatch:
-permissions:
-  contents: write
-concurrency:
-  group: pages
-  cancel-in-progress: true
 jobs:
-  deploy:
+  build-apk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          force_orphan: true
-          enable_jekyll: false
-  build-apk:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for Pages
-        run: sleep 30
-      - name: Check Pages is live
-        run: |
-          URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
-          for i in {1..10}; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || echo "000")
-            echo "Attempt $i: HTTP $STATUS"
-            if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
-              echo "PAGES_URL=$URL" >> $GITHUB_ENV
-              echo "Pages is live!"
-              exit 0
-            fi
-            sleep 15
-          done
-          echo "Pages did not become live"
-          exit 1
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Build APK via PWABuilder API
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install tools
         run: |
-          URL="${{ env.PAGES_URL }}"
-          echo "Packaging: $URL"
-          RESP=$(curl -s -w "\n%{http_code}" -X POST "https://pwabuilder.com/api/package" \
-            -H "Content-Type: application/json" \
-            -d "{\"url\":\"$URL\",\"platform\":\"android\"}" 2>&1)
-          HTTP_CODE=$(echo "$RESP" | tail -1)
-          BODY=$(echo "$RESP" | head -n -1)
-          echo "HTTP $HTTP_CODE"
-          echo "$BODY" | head -c 2000
-          if [ "$HTTP_CODE" = "200" ]; then
-            DL_URL=$(echo "$BODY" | grep -oP '"url":"[^"]+' | head -1 | grep -oP 'https?://[^"]+')
-            if [ -n "$DL_URL" ]; then
-              echo "Downloading from: $DL_URL"
-              curl -sL -o c152.apk "$DL_URL"
-              ls -la c152.apk
-              echo "APK_BUILT=true" >> $GITHUB_ENV
+          npm install -g serve
+          curl -sL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /tmp/cloudflared
+          chmod +x /tmp/cloudflared
+          npm install -g @bubblewrap/cli
+
+      - name: Start local server
+        run: |
+          serve -s . -p 4000 &
+          sleep 3
+          curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/
+          echo " Server running"
+
+      - name: Create cloudflare tunnel
+        run: |
+          /tmp/cloudflared tunnel --url http://localhost:4000 --no-autoupdate > /tmp/tunnel.log 2>&1 &
+          for i in {1..20}; do
+            URL=$(grep -oP 'https://[a-zA-Z0-9.-]+\.trycloudflare\.com' /tmp/tunnel.log | head -1)
+            if [ -n "$URL" ]; then
+              echo "Tunnel: $URL"
+              echo "APK_URL=$URL" >> $GITHUB_ENV
+              break
             fi
-          fi
+            sleep 3
+          done
+          [ -n "$URL" ] || (cat /tmp/tunnel.log && exit 1)
+
+      - name: Build APK with Bubblewrap
+        run: |
+          URL="${{ env.APK_URL }}"
+          echo "Building from: $URL"
+          cd /tmp
+          mkdir -p bw-build
+          cd bw-build
+          echo "y" | bubblewrap init --manifest "$URL/manifest.json" 2>&1
+          bubblewrap build --skipSigning 2>&1
+          find . -name "*.apk" -exec cp {} /tmp/c152.apk \;
+          ls -la /tmp/c152.apk
+
       - name: Upload APK
-        if: env.APK_BUILT == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: c152-android-apk
-          path: c152.apk
+          path: /tmp/c152.apk
           if-no-files-found: warn
