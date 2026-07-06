@@ -545,7 +545,6 @@ function filterByCategory(cat) {
 
 // ═══ UI ═══
 const container = document.getElementById('cardContainer');
-const catLabel = document.getElementById('catLabel');
 const toast = document.getElementById('toast');
 
 function showToast(msg) {
@@ -587,8 +586,8 @@ function renderCard(index) {
   currentIndex = Math.min(index, vis.length-1);
   let card = vis[currentIndex];
   let cat = CAT_MAP[card.cat] || CATEGORIES[0];
-  catLabel.textContent = cat.name;
-  catLabel.style.background = cat.color+'22';
+  let sel = document.getElementById('catSelector');
+  if(sel) { sel.value = card.cat; sel.style.background = cat.color+'33'; }
   trackView(card.id);
   
   let qBtn = document.getElementById('quizBtn');
