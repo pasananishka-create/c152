@@ -472,9 +472,15 @@ document.getElementById('installBtn').addEventListener('click',()=>{if(deferredP
 document.getElementById('installClose').addEventListener('click',()=>{document.getElementById('install-banner').classList.remove('show')});
 
 // ═══ GENERATE UNLIMITED CARDS ═══
-function generateCard() {
+function generateCard(forceCat) {
   genCount++;
-  let tmpl = GEN_TEMPLATES[genCount % GEN_TEMPLATES.length];
+  let tmpl;
+  if(forceCat) {
+    let matches = GEN_TEMPLATES.filter(t=>t.cat===forceCat);
+    tmpl = matches.length ? matches[genCount % matches.length] : GEN_TEMPLATES[genCount % GEN_TEMPLATES.length];
+  } else {
+    tmpl = GEN_TEMPLATES[genCount % GEN_TEMPLATES.length];
+  }
   let ti = Math.floor(Math.random() * tmpl.t.length);
   let ci = tmpl.c[Math.min(ti, tmpl.c.length-1)];
   let ai = tmpl.a ? tmpl.a[Math.min(ti, tmpl.a.length-1)] : [];
@@ -503,11 +509,11 @@ function getVisibleCards() {
 }
 
 function ensureCardCount() {
-  // ensure at least 20 cards visible
   let vis = getVisibleCards();
-  while(vis.length < 20) {
-    let newCard = generateCard();
-    // Check not duplicate
+  let safety = 0;
+  while(vis.length < 10 && safety < 50) {
+    safety++;
+    let newCard = generateCard(filterCat);
     if(!cards.find(c=>c.id===newCard.id)) {
       cards.push(newCard);
     }
