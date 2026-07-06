@@ -157,8 +157,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   <button class="install-close" id="installClose">✕</button>
 </div>
 <script>
-// ══ PWA ICONS ══
-!(function(){function g(s,f){var c=document.createElement('canvas');c.width=s;c.height=s;var x=c.getContext('2d');x.fillStyle='#0a0a1a';x.fillRect(0,0,s,s);x.font='bold '+(s*.5)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';var g=x.createLinearGradient(0,0,s,s);g.addColorStop(0,'#f7971e');g.addColorStop(1,'#ffd200');x.fillStyle=g;x.fillText('152',s/2,s/2+2);var d=c.toDataURL('image/png');var l=document.createElement('link');l.rel='icon';l.href=d;document.head.appendChild(l);if(s===192||s===512){var m=document.createElement('link');m.rel='apple-touch-icon';m.sizes=s+'x'+s;m.href=d;document.head.appendChild(m)}}g(192);g(512);})();
 // ══ REGISTER SW ══
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 </script>
@@ -1044,7 +1042,7 @@ function showProfile() {
 // ═══ INIT ═══
 updateStreak();
 document.addEventListener('DOMContentLoaded',()=>{
-  setTimeout(()=>{
+  requestAnimationFrame(()=>{
     document.getElementById('splash').classList.add('hidden');
     document.getElementById('app').classList.add('active');
     cards = [...ALL_CARDS];
@@ -1059,7 +1057,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     } else {
       renderCard(0);
     }
-  }, 800);
+  });
 });
 </script>
 </body>
