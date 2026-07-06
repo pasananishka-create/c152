@@ -30,6 +30,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 #app.active{display:flex}
 #top-bar{position:absolute;top:0;left:0;right:0;z-index:20;padding:env(safe-area-inset-top,12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(10,10,26,.95) 60%,transparent)}
 #top-bar .cat{padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;background:rgba(255,255,255,.1);color:#ffd200}
+#catSelector{appearance:none;-webkit-appearance:none;border:0;outline:0;cursor:pointer;max-width:160px;direction:rtl;text-align:left;padding-right:4px}
+#catSelector option{background:#1a1a3a;color:#fff;text-transform:none;font-size:.85rem}
 #top-bar .search-btn{width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #card-area{flex:1;position:relative;overflow:hidden}
 .card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 100px;padding-top:env(safe-area-inset-top,80px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px);transition:transform .35s cubic-bezier(.22,.61,.36,1),opacity .35s;will-change:transform;transform:translateZ(0);-webkit-transform:translateZ(0)}
@@ -126,7 +128,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <body>
 <div id="splash"><h1>C152</h1><p>Knowledge • Maintenance • Mastery</p><div class="loader"></div></div>
 <div id="app">
-  <div id="top-bar"><span class="cat" id="catLabel">General</span><button class="search-btn" id="searchBtn">🔍</button></div>
+  <div id="top-bar"><select id="catSelector" class="cat"></select><button class="search-btn" id="searchBtn">🔍</button></div>
   <div id="card-area">
     <div class="tap-hint top">▲ tap up</div>
     <div id="cardContainer"></div>
@@ -439,6 +441,16 @@ let streak = JSON.parse(localStorage.getItem('c152_streak')||'{"count":0,"last":
 let isAnimating = false;
 let filterCat = null;
 let isShuffled = false;
+let savedPositions = JSON.parse(localStorage.getItem('c152_positions')||'{}');
+function savePosition() {
+  let key = filterCat || '__all__';
+  savedPositions[key] = currentIndex;
+  localStorage.setItem('c152_positions', JSON.stringify(savedPositions));
+}
+function restorePosition(forCat) {
+  let key = forCat || '__all__';
+  return savedPositions[key] || 0;
+}
 let quizMode = false;
 let quizCards = [];
 let quizIndex = 0;
@@ -504,6 +516,34 @@ function ensureCardCount() {
     vis = getVisibleCards();
   }
 }
+
+function filterByCategory(cat) {
+  savePosition();
+  filterCat = cat || null;
+  localStorage.setItem('c152_lastFilter', filterCat || '');
+  let sel = document.getElementById('catSelector');
+  if(sel) sel.value = cat || '';
+  let idx = restorePosition(cat);
+  cards = [...ALL_CARDS];
+  let vis = getVisibleCards();
+  if(vis.length) {
+    currentIndex = Math.min(idx, vis.length - 1);
+    renderCard(currentIndex);
+  }
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  let feedBtn = document.querySelector('[data-view="feed"]');
+  if(feedBtn) feedBtn.classList.add('active');
+}
+
+(function populateCatSelector() {
+  let sel = document.getElementById('catSelector');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">All Topics</option>' +
+    CATEGORIES.map(c => `<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+  sel.addEventListener('change', function() {
+    filterByCategory(this.value);
+  });
+})();
 
 // ═══ UI ═══
 const container = document.getElementById('cardContainer');
@@ -578,6 +618,7 @@ function renderCard(index) {
     ${card.tip ? `<div class="tip"><div class="tip-label">💡 Pro Tip</div><div class="tip-text">${card.tip}</div></div>` : ''}
     <div class="card-num">#${currentIndex+1} of ∞</div>
   </div>`;
+  savePosition();
 }
 
 function animateTo(index, dir) {
@@ -736,16 +777,14 @@ document.getElementById('searchBtn').addEventListener('click',()=>{
     res.querySelectorAll('.bm-item').forEach(el=>{
       el.addEventListener('click',()=>{
         closeModal();
+        savePosition();
+        filterCat = null;
+        document.getElementById('catSelector').value = '';
+        cards = [...ALL_CARDS];
+        let vis = getVisibleCards();
         let id = el.dataset.id;
-        let idx = ALL_CARDS.findIndex(c=>c.id===id);
-        if(idx>=0) {
-          // Reset to show this card
-          if(filterCat) filterCat = null;
-          cards = [...ALL_CARDS];
-          let vis = getVisibleCards();
-          let newIdx = vis.findIndex(c=>c.id===id);
-          if(newIdx>=0) animateTo(newIdx,1);
-        }
+        let newIdx = vis.findIndex(c=>c.id===id);
+        if(newIdx>=0) { currentIndex = newIdx; renderCard(newIdx); }
       });
     });
   });
@@ -925,17 +964,8 @@ function showCategories() {
   }).join('')}</div>`);
   document.querySelectorAll('.cat-item').forEach(el=>{
     el.addEventListener('click',()=>{
-      let cat = el.dataset.cat;
       closeModal();
-      filterCat = cat;
-      cards = [...ALL_CARDS];
-      let vis = getVisibleCards();
-      if(vis.length) {
-        currentIndex = 0;
-        renderCard(0);
-      }
-      document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-      document.querySelector('[data-view="feed"]').classList.add('active');
+      filterByCategory(el.dataset.cat);
     });
   });
 }
@@ -960,14 +990,13 @@ function showBookmarks() {
       if(e.target.classList.contains('bm-del')) return;
       let id = el.dataset.id;
       closeModal();
-      let idx = ALL_CARDS.findIndex(c=>c.id===id);
-      if(idx>=0) {
-        filterCat = null;
-        cards = [...ALL_CARDS];
-        let vis = getVisibleCards();
-        let newIdx = vis.findIndex(c=>c.id===id);
-        if(newIdx>=0) animateTo(newIdx,1);
-      }
+      savePosition();
+      filterCat = null;
+      document.getElementById('catSelector').value = '';
+      cards = [...ALL_CARDS];
+      let vis = getVisibleCards();
+      let newIdx = vis.findIndex(c=>c.id===id);
+      if(newIdx>=0) { currentIndex = newIdx; renderCard(newIdx); }
     });
   });
   document.querySelectorAll('.bm-del').forEach(el=>{
@@ -1019,7 +1048,17 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('splash').classList.add('hidden');
     document.getElementById('app').classList.add('active');
     cards = [...ALL_CARDS];
-    renderCard(0);
+    let savedFilter = localStorage.getItem('c152_lastFilter') || '';
+    filterCat = savedFilter || null;
+    if(filterCat) document.getElementById('catSelector').value = filterCat;
+    currentIndex = restorePosition(filterCat);
+    let vis = getVisibleCards();
+    if(vis.length) {
+      currentIndex = Math.min(currentIndex, vis.length - 1);
+      renderCard(currentIndex);
+    } else {
+      renderCard(0);
+    }
   }, 800);
 });
 </script>
