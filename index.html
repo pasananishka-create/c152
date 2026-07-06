@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Cessna 152">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-startup-image" href="icon-512.png" media="(device-width: 414px) and (device-height: 896px)">
+<link rel="manifest" href="manifest.json">
+<link rel="preload" as="image" href="icon-192.png">
+<link rel="preload" as="image" href="icon-512.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<title>Cessna 152 Knowledge</title>
+<meta name="theme-color" content="#0a0a1a">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overscroll-behavior:none;touch-action:manipulation}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+#splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a0a1a;transition:opacity .5s}
+#splash.hidden{opacity:0;pointer-events:none}
+#splash h1{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#f7971e,#ffd200);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+#splash p{color:#888;font-size:.9rem}
+#splash .loader{margin-top:24px;width:40px;height:40px;border:3px solid #1a1a3a;border-top-color:#f7971e;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#app{position:fixed;inset:0;display:none;flex-direction:column;background:#0a0a1a}
+#app.active{display:flex}
+#top-bar{position:absolute;top:0;left:0;right:0;z-index:20;padding:env(safe-area-inset-top,12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(10,10,26,.95) 60%,transparent)}
+#top-bar .cat{padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;background:rgba(255,255,255,.1);color:#ffd200}
+#catSelector{appearance:none;-webkit-appearance:none;border:0;outline:0;cursor:pointer;max-width:160px;direction:rtl;text-align:left;padding-right:4px}
+#catSelector option{background:#1a1a3a;color:#fff;text-transform:none;font-size:.85rem}
+#top-bar .search-btn{width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#card-area{flex:1;position:relative;overflow:hidden}
+.card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 100px;padding-top:env(safe-area-inset-top,80px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px);transition:transform .35s cubic-bezier(.22,.61,.36,1),opacity .35s;will-change:transform;transform:translateZ(0);-webkit-transform:translateZ(0)}
+.card.exit-up{transform:translateY(-100vh);opacity:0}.card.exit-down{transform:translateY(100vh);opacity:0}
+.card.enter-up{transform:translateY(100vh);opacity:0}.card.enter-down{transform:translateY(-100vh);opacity:0}
+.card .emoji{font-size:4rem;margin-bottom:16px;filter:drop-shadow(0 4px 20px rgba(247,151,30,.2))}
+.card .title{font-size:1.3rem;font-weight:700;text-align:center;margin-bottom:12px;color:#fff}
+.card .content{font-size:.95rem;text-align:center;line-height:1.7;color:#bbb;max-width:360px;white-space:pre-line}
+.card .content strong{color:#fff}
+.card .tip{margin-top:20px;padding:12px 16px;border-radius:12px;background:rgba(255,210,0,.08);border-left:3px solid #ffd200;max-width:340px;width:100%}
+.card .tip-label{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:#ffd200;font-weight:700;margin-bottom:4px}
+.card .tip-text{font-size:.85rem;color:#ccc;line-height:1.5}
+.card .card-num{position:absolute;bottom:80px;font-size:.7rem;color:#555;letter-spacing:.5px}
+#side-actions{position:absolute;right:12px;bottom:120px;z-index:15;display:flex;flex-direction:column;gap:12px}
+#side-actions button{width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:#fff;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);-webkit-touch-callout:none}
+#side-actions button:active{transform:scale(.9)}@media(hover:hover){#side-actions button:hover{background:rgba(255,255,255,.12)}}
+#side-actions button.bookmarked{color:#ff3b5c;background:rgba(255,59,92,.12)}
+#side-actions .action-label{text-align:center;font-size:.6rem;color:#666;margin-top:2px}
+#bottom-nav{position:absolute;bottom:0;left:0;right:0;z-index:20;display:flex;background:rgba(10,10,26,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:4px 0 env(safe-area-inset-bottom,8px);border-top:1px solid rgba(255,255,255,.05)}
+#bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border:0;background:0;color:#555;font-size:.75rem;cursor:pointer;transition:color .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#bottom-nav button.active{color:#ffd200}
+#bottom-nav button .nav-icon{font-size:1.3rem;line-height:1;pointer-events:none}
+#bottom-nav button .nav-icon{font-size:1.3rem;line-height:1}
+#modal-overlay{position:fixed;inset:0;z-index:50;display:none;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#modal-overlay.active{display:flex;flex-direction:column}
+#modal-overlay .modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px;padding-top:env(safe-area-inset-top,16px);border-bottom:1px solid rgba(255,255,255,.06)}
+#modal-overlay .modal-header h2{font-size:1.1rem;color:#fff}
+#modal-overlay .modal-close{width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:#fff;font-size:1.2rem;cursor:pointer}
+#modal-overlay .modal-body{flex:1;overflow-y:auto;padding:16px;padding-bottom:env(safe-area-inset-bottom,16px)}
+.quiz-card{padding:24px 16px;background:rgba(255,255,255,.03);border-radius:16px;margin-bottom:12px}
+.quiz-card .q{font-size:1.1rem;font-weight:600;margin-bottom:16px;color:#fff}
+.quiz-option{display:block;width:100%;padding:14px 16px;margin-bottom:8px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.03);color:#ddd;font-size:.95rem;text-align:left;cursor:pointer;transition:all .2s}
+.quiz-option:active{transform:scale(.98)}
+.quiz-option.selected{border-color:#ffd200;background:rgba(255,210,0,.1);color:#fff}
+.quiz-option.correct{border-color:#00c853;background:rgba(0,200,83,.15);color:#00c853}
+.quiz-option.wrong{border-color:#ff1744;background:rgba(255,23,68,.15);color:#ff1744}
+.quiz-result{text-align:center;padding:20px;font-size:1.1rem}
+.quiz-score{margin-top:16px;padding:16px;background:rgba(255,210,0,.08);border-radius:16px;text-align:center}
+.quiz-score .num{font-size:2rem;font-weight:800;color:#ffd200}
+.quiz-score .label{color:#888;font-size:.85rem}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cat-item{padding:16px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:all .2s;text-align:center}
+.cat-item:active{transform:scale(.96)}
+.cat-item .cat-emoji{font-size:2rem;margin-bottom:6px}
+.cat-item .cat-name{font-size:.8rem;color:#ccc;font-weight:600}
+.cat-item .cat-count{font-size:.7rem;color:#666}
+.cat-item .cat-prog{height:3px;border-radius:2px;background:rgba(255,255,255,.05);margin-top:8px;overflow:hidden}
+.cat-item .cat-prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#f7971e,#ffd200);transition:width .5s}
+.profile-header{text-align:center;padding:24px 0}
+.profile-header .level{font-size:3rem;font-weight:800;background:linear-gradient(135deg,#f7971e,#ffd200);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.profile-header .level-label{color:#888;font-size:.85rem;margin-top:4px}
+.profile-header .xp-bar{max-width:280px;margin:16px auto;height:6px;border-radius:3px;background:rgba(255,255,255,.05);overflow:hidden}
+.profile-header .xp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#f7971e,#ffd200);transition:width .5s}
+.profile-header .xp-text{font-size:.75rem;color:#666}
+.streak-display{text-align:center;padding:16px;margin:12px 0;background:rgba(255,210,0,.05);border-radius:16px;border:1px solid rgba(255,210,0,.1)}
+.streak-display .streak-num{font-size:2.5rem;font-weight:800;color:#ffd200}
+.streak-display .streak-label{font-size:.8rem;color:#888}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.stat-box{padding:12px;border-radius:12px;background:rgba(255,255,255,.03);text-align:center}
+.stat-box .num{font-size:1.3rem;font-weight:700;color:#fff}
+.stat-box .label{font-size:.65rem;color:#666;margin-top:2px}
+.bm-list{display:flex;flex-direction:column;gap:8px}
+.bm-item{padding:14px 16px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:all .2s}
+.bm-item:active{transform:scale(.98)}
+.bm-item .bm-emoji{margin-right:8px}
+.bm-item .bm-title{font-size:.9rem;color:#ddd;font-weight:600}
+.bm-item .bm-cat{font-size:.7rem;color:#666;margin-top:2px}
+.bm-item .bm-del{float:right;color:#ff1744;font-size:.8rem;border:0;background:0;cursor:pointer;padding:4px}
+.search-input{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:1rem;outline:0;margin-bottom:16px;-webkit-appearance:none;appearance:none}
+.search-input::placeholder{color:#555}.search-input:focus{border-color:#ffd200}
+.search-results{display:flex;flex-direction:column;gap:6px}
+.badge-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.badge{width:62px;height:62px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.4rem;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.06);transition:all .3s}
+.badge.unlocked{background:rgba(255,210,0,.1);border-color:#ffd200;box-shadow:0 0 20px rgba(255,210,0,.15)}
+.badge.locked{filter:grayscale(1);opacity:.3}
+.badge .badge-label{font-size:.45rem;color:#666;margin-top:2px;text-align:center;line-height:1.1}
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:100;padding:10px 20px;border-radius:12px;background:rgba(20,20,50,.9);color:#fff;font-size:.85rem;opacity:0;transition:all .3s;pointer-events:none;backdrop-filter:blur(12px);white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(-8px)}
+.tap-hint{position:absolute;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.15);font-size:.7rem;letter-spacing:1px;z-index:5;pointer-events:none;opacity:.5}
+.tap-hint.top{top:60px}.tap-hint.bottom{bottom:90px}
+.empty-state{text-align:center;padding:40px 20px;color:#555;font-size:.9rem}
+.empty-state .empty-icon{font-size:3rem;margin-bottom:12px;opacity:.3}
+.modal-body::-webkit-scrollbar{width:4px}
+.modal-body::-webkit-scrollbar-track{background:0 0}
+.modal-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+@media(max-width:360px){.card .title{font-size:1.1rem}.card .content{font-size:.85rem}#side-actions button{width:42px;height:42px;font-size:1.1rem}#side-actions{gap:8px}.card{padding:70px 16px 90px}}@media(min-width:600px){.cat-grid{grid-template-columns:1fr 1fr 1fr}}@media(display-mode:standalone){#install-banner{display:none!important}}@media(prefers-reduced-motion:reduce){.card{transition-duration:0ms}}
+/* PWA install banner */
+#install-banner{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:200;padding:12px 20px;border-radius:16px;background:rgba(30,30,60,.95);border:1px solid rgba(255,210,0,.2);display:none;align-items:center;gap:12px;backdrop-filter:blur(12px);font-size:.85rem}
+#install-banner.show{display:flex}
+#install-banner .install-btn{padding:8px 16px;border-radius:10px;border:0;background:linear-gradient(135deg,#f7971e,#ffd200);color:#000;font-weight:700;font-size:.8rem;cursor:pointer;white-space:nowrap}
+#install-banner .install-close{background:0;border:0;color:#666;cursor:pointer;font-size:1.1rem;padding:4px}
+</style>
+</head>
+<body>
+<div id="splash"><h1>C152</h1><p>Knowledge • Maintenance • Mastery</p><div class="loader"></div></div>
+<div id="app">
+  <div id="top-bar"><select id="catSelector" class="cat"></select><button class="search-btn" id="searchBtn">🔍</button></div>
+  <div id="card-area">
+    <div class="tap-hint top">▲ tap up</div>
+    <div id="cardContainer"></div>
+    <div class="tap-hint bottom">tap down ▼</div>
+  </div>
+  <div id="side-actions">
+    <button id="bookmarkBtn">🤍</button>
+    <button id="quizBtn">🧠</button>
+    <button id="shuffleBtn">🔀</button>
+  </div>
+  <div id="bottom-nav">
+    <button class="nav-item active" data-view="feed"><span class="nav-icon">🏠</span>Feed</button>
+    <button class="nav-item" data-view="categories"><span class="nav-icon">📂</span>Topics</button>
+    <button class="nav-item" data-view="bookmarks"><span class="nav-icon">🔖</span>Saved</button>
+    <button class="nav-item" data-view="profile"><span class="nav-icon">👤</span>Profile</button>
+  </div>
+</div>
+<div id="modal-overlay">
+  <div class="modal-header"><h2 id="modalTitle">Title</h2><button class="modal-close" id="modalClose">✕</button></div>
+  <div class="modal-body" id="modalBody"></div>
+</div>
+<div id="toast"></div>
+<div id="install-banner">
+  <span>📲 Install C152 app for offline use</span>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="install-close" id="installClose">✕</button>
+</div>
+<script>
+// ══ REGISTER SW ══
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CARD DATA — 225+ Cessna 152 maintenance cards
+// ═══════════════════════════════════════════════════════════════
+const CATEGORIES = [
+  {id:'gen',name:'General Specs',emoji:'📐',color:'#f7971e'},
+  {id:'eng',name:'Engine O-235',emoji:'⚙️',color:'#ff6b35'},
+  {id:'fuel',name:'Fuel System',emoji:'⛽',color:'#00c853'},
+  {id:'elec',name:'Electrical',emoji:'⚡',color:'#2979ff'},
+  {id:'lg',name:'Landing Gear',emoji:'🛞',color:'#9c27b0'},
+  {id:'prop',name:'Propeller',emoji:'🌀',color:'#00bcd4'},
+  {id:'ctrl',name:'Flight Controls',emoji:'🎮',color:'#ff4081'},
+  {id:'power',name:'Powerplant Sys',emoji:'🔥',color:'#ff5722'},
+  {id:'frame',name:'Airframe',emoji:'✈️',color:'#607d8b'},
+  {id:'insp',name:'Inspections',emoji:'🔍',color:'#4caf50'},
+  {id:'torque',name:'Torque Values',emoji:'🔧',color:'#ffab00'},
+  {id:'ad',name:'Airworthiness ADs',emoji:'📋',color:'#e53935'},
+  {id:'proc',name:'Procedures',emoji:'👐',color:'#795548'},
+  {id:'cockpit',name:'Cockpit Systems',emoji:'🕹️',color:'#546e7a'},
+  {id:'limit',name:'Limitations',emoji:'⚠️',color:'#d50000'}
+];
+const CAT_MAP = Object.fromEntries(CATEGORIES.map(c=>[c.id,c]));
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CARD DATA (part 1 - Technician: Engine, Fuel, Electrical systems)
+// ═══════════════════════════════════════════════════════════════
+const CARDS = [
+{id:'eng1',cat:'eng',title:'O-235-L2C Identification',emoji:'⚙️',content:'Engine: Lycoming O-235-L2C. Serial number on crankcase left side near magneto. Model suffix L2C = specific configuration with 110 HP at 2550 RPM, 7.0:1 compression. Displacement: 233.3 cu in (3.82 L). Bore 4.375 in, stroke 3.875 in.',tip:'Always verify the exact suffix (L2C) when ordering parts — not all O-235 variants are identical.',quiz:{q:'O-235 displacement?',o:['200 cu in','233.3 cu in','250 cu in','285 cu in'],a:1}},
+{id:'eng2',cat:'eng',title:'Engine Removal Prep',emoji:'🔧',content:'Before removing engine: drain oil (6 qt), drain fuel from gascolator, disconnect battery master. Tag all lines and wires. Remove spinner and prop, remove cowling, disconnect control cables at firewall, fuel line at gascolator, electrical harness at firewall connector.',tip:'Take photos before disconnecting — makes reassembly much easier.',quiz:{q:'What must be done before engine removal?',o:['Just unbolt','Drain oil + fuel, tag all lines','Remove only prop','Disconnect battery only'],a:1}},
+{id:'eng3',cat:'eng',title:'Cylinder Removal',emoji:'🔩',content:'To remove a cylinder: 1) Remove rocker covers, push rods, 2) Remove intake/exhaust pipes, 3) Remove spark plugs, 4) Remove cylinder base nuts (100-120 in-lb), 5) Remove through bolts (35-40 ft-lb), 6) Tap cylinder loose with rubber mallet. Lift cylinder straight off studs — do not rock it.',tip:'Mark push rods — they must go back in the same position (intake/exhaust, left/right).'},
+{id:'eng4',cat:'eng',title:'Piston Ring End Gap',emoji:'🔧',content:'Ring end gaps (measured in cylinder bore): Top compression ring: 0.010-0.020 in. Second compression ring: 0.010-0.020 in. Oil control ring: 0.015-0.055 in. Max allowable when worn: 0.040 in (compression rings), 0.065 in (oil ring).',tip:'Always stagger ring gaps 120° apart to minimize blow-by.',quiz:{q:'Top ring end gap range?',o:['0.005-0.010','0.010-0.020','0.020-0.030','0.030-0.040'],a:1}},
+{id:'eng5',cat:'eng',title:'Piston Installation',emoji:'🔩',content:'Pistons have an arrow or notch pointing forward (toward propeller). Rings: install with manufacturer mark up. Oil ring expander gap must be opposite the oil ring rail gaps. Compress rings with band-type tool, tap piston into bore with wooden hammer handle. Connecting rod bolts must be torqued to 265-275 in-lb.',tip:'Use new self-locking nuts on connecting rod bolts. They are one-time use.',quiz:{q:'Connecting rod bolt torque?',o:['200-220 in-lb','265-275 in-lb','300-320 in-lb','350-370 in-lb'],a:1}},
+{id:'eng6',cat:'eng',title:'Crankshaft Runout Check',emoji:'📏',content:'Crankshaft runout check (during overhaul): Place crank on V-blocks at front and rear main journals. Dial indicator at center main journal. Max runout: 0.002 in (0.051 mm). If exceeded: straighten or replace crankshaft. Prop flange runout: max 0.002 in face, 0.0015 in radial.',tip:'Excessive runout causes vibration and premature bearing wear.'},
+{id:'eng7',cat:'eng',title:'Main Bearing Installation',emoji:'🔧',content:'Main bearings are precision insert type. Bearing shells must be clean and dry (no oil on shell back). Torque main bearing nuts to 35-40 ft-lb. Sequence: tighten from center outward. After all torqued: check crankshaft rotates freely (0.005-0.010 in clearance per journal).',tip:'If crankshaft binds after torquing main bearings, check for dirt under bearing shells.'},
+{id:'eng8',cat:'eng',title:'Connecting Rod Big End Bore',emoji:'📐',content:'Connecting rod big end bore (with bearings installed): 1.8860-1.8865 in. Rod side clearance on crank journal: 0.006-0.016 in. Rod bolt stretched length: max 0.005 in over original. Replace rods if bushing is worn or bolt holes are damaged.',tip:'Always measure rod bolt stretch with a micrometer — do not rely on torque alone for critical bolts.'},
+{id:'eng9',cat:'eng',title:'Oil Pump Clearances',emoji:'🛢️',content:'Oil pump (gerotor type): Outer rotor to housing clearance: 0.003-0.006 in. Inner to outer rotor tip clearance: 0.003-0.006 in. Rotor end play: 0.001-0.004 in. If clearances exceed 0.010 in, replace pump. Oil pressure at idle must be ≥25 PSI, at cruise 60-90 PSI.',tip:'Low oil pressure at idle but good at cruise = worn pump or bearings.',quiz:{q:'Min oil pressure at idle?',o:['10 PSI','25 PSI','40 PSI','60 PSI'],a:1}},
+{id:'eng10',cat:'eng',title:'Valve Guide Replacement',emoji:'🔧',content:'Valve guide wear limits: Intake guide ID: max 0.002 in oversize. Exhaust guide ID: max 0.003 in oversize. Replacement: press out old guide (from combustion chamber side), press in new guide to specified height. Ream to correct ID after installation. Valve stem-to-guide clearance: intake 0.001-0.003 in, exhaust 0.002-0.004 in.',tip:'Tight exhaust guides cause valve sticking. Loose guides cause oil burning.'},
+{id:'eng11',cat:'eng',title:'Valve Seat Grinding',emoji:'🔧',content:'Valve seat width: intake 0.045-0.065 in, exhaust 0.055-0.075 in. Seat angle: 45°. Interference angle: 0.5-1.0° (seat 45°, valve face 44° or 46°). After grinding: lap valve to seat with compound. Check seal with Prussian blue or vacuum test.',tip:'Too narrow a seat = poor heat transfer. Too wide = poor sealing.',quiz:{q:'Valve seat angle?',o:['30°','45°','60°','90°'],a:1}},
+{id:'eng12',cat:'eng',title:'Magneto Impulse Coupling',emoji:'🧲',content:'Slick magneto impulse coupling: Check that impulse spring snaps at 1-2 RPM (hand propping speed). If no snap: coupling is stuck or broken. Impulse coupling advances timing for start, then drops out above ~300 RPM. Service: clean with solvent, lubricate pivot points with light oil.',tip:'A broken impulse coupling = no or weak spark during cranking. Engine won\'t start.',quiz:{q:'What does impulse coupling do?',o:['Retards timing','Advances timing for start','Doubles spark','Cuts mag at idle'],a:1}},
+{id:'eng13',cat:'eng',title:'Carburetor Float Level',emoji:'⛽',content:'Marvel-Schebler MA4-5AA float level: 0.375 in (3/8 in) from gasket surface to bottom of float. Measure with float arm just touching needle valve (not compressing the spring). Too high = rich mixture, fuel overflow. Too low = lean mixture, fuel starvation.',tip:'Check float level with carburetor inverted. Float must not show any leaks (shake — if it has fuel inside, replace it).',quiz:{q:'MA4-5AA float level?',o:['1/4 in','3/8 in','1/2 in','5/8 in'],a:1}},
+{id:'eng14',cat:'eng',title:'Carb Idle Speed/Mixture',emoji:'🎛️',content:'Idle speed: 600-700 RPM warm. Idle mixture adjustment: turn idle mixture screw (on carburetor) to obtain maximum idle RPM, then lean until RPM drops 10-15 RPM, then enrich slightly. Cutoff test: pull mixture to idle cutoff at 1,000 RPM — engine should stop within 5 seconds.',tip:'If engine continues running past 10 seconds on idle cutoff, idle mixture is too rich.'},
+{id:'eng15',cat:'eng',title:'Cylinder Base Nut Torque Sequence',emoji:'🔩',content:'Cylinder base nuts torque sequence: Tighten in 2 steps. Step 1: 50-60 in-lb. Step 2: 100-120 in-lb. Sequence: Tighten diagonally (crossover pattern). There are 6 base nuts per cylinder. After torquing, safety-wire all nuts in pairs.',tip:'Use AN960-10 washers under all base nuts. Never reuse locknuts.',quiz:{q:'Cylinder base nut torque?',o:['50-70 in-lb','100-120 in-lb','150-170 in-lb','200-220 in-lb'],a:1}},
+{id:'eng16',cat:'eng',title:'Through Bolt Torque Sequence',emoji:'🔧',content:'Through bolts (4 per cylinder): Torque to 35-40 ft-lb. Sequence: Tighten in diagonal pattern. If one bolt is noticeably looser than others — cylinder barrel may have shifted. Check for cylinder base stud thread damage. Use new self-locking nuts each installation.',tip:'A through bolt that keeps loosening = cylinder barrel movement. Investigate before flying.',quiz:{q:'Through bolt torque?',o:['20-25 ft-lb','35-40 ft-lb','45-50 ft-lb','55-60 ft-lb'],a:1}},
+{id:'eng17',cat:'eng',title:'Rocker Shaft End Play',emoji:'🔧',content:'Rocker shaft end play: 0.005-0.015 in. If excessive: replace rocker shaft bushings in the cylinder head. Rocker arm-to-stem pad clearance: must be centered on valve stem tip. Adjust valve clearance: intake 0.004-0.008 in, exhaust 0.006-0.012 in cold.',tip:'Worn rocker bushings cause valve train noise and inconsistent valve lash readings.'},
+{id:'eng18',cat:'eng',title:'Push Rod Tube Seal',emoji:'🔄',content:'Push rod tube seals (rubber O-rings at each end): Common leak source. Replace whenever rocker boxes are removed. Lubricate O-rings with engine oil before installation. Push rod tubes must be straight — roll on flat surface to check. Bent tube = replace immediately (valve train damage risk).',tip:'Oil running down the cylinder fins from the rocker box = push rod tube seal leak.',quiz:{q:'Common rocker box leak source?',o:['Head gasket','Push rod tube seals','Valve cover','Base nuts'],a:1}},
+{id:'eng19',cat:'eng',title:'Crankcase Sealant',emoji:'🔧',content:'Crankcase halves are joined with Loctite Master Gasket or equivalent non-hardening sealant. Apply thin, even coat — excess can block oil passages. Torque crankcase bolts in 3 steps (refer to manual for sequence). Step 1: 40 in-lb, Step 2: 80 in-lb, Step 3: 110 in-lb (some bolts vary — check manual).',tip:'Crankcase seal leaks = oil dripping from bottom of engine. Re-torque bolts before resealing.'},
+{id:'eng20',cat:'eng',title:'Prop Flange Runout',emoji:'📏',content:'Propeller flange runout: Max face runout 0.002 in. Max radial runout 0.0015 in. Measured with dial indicator on flange face and outer diameter. If exceeded: check crankshaft runout, check flange bolt hole condition. Elongated bolt holes = immediate replacement.',tip:'High prop vibration after installation? Check flange runout first.',quiz:{q:'Max prop flange face runout?',o:['0.001 in','0.002 in','0.005 in','0.010 in'],a:1}},
+{id:'eng21',cat:'eng',title:'Engine Mount Inspection',emoji:'🔩',content:'Dynafocal engine mount: 4 Lord rubber vibration isolators. Inspect: rubber for cracking, separation from metal, compression set. Mount tubes for cracks at weld joints. Replace all 4 mounts if any one is bad. Torque mount bolts to 180-200 in-lb.',tip:'Engine vibration in cruise can be caused by worn Lord mounts — not just prop imbalance.'},
+{id:'eng22',cat:'eng',title:'Oil Filter Cut-Open Guide',emoji:'🔬',content:'Cut filter element open with filter cutter (never hacksaw — metal shavings). Stretch element out, inspect under good light. Normal: fine dark carbon particles. Suspicious: fine metallic dust (silver = aluminum/lead, magnetic = steel). Critical: chunks, flakes, or copper-colored particles — ground engine.',tip:'Oil filter analysis is your best early warning. Do it at EVERY oil change.',quiz:{q:'What tool to cut oil filter?',o:['Hacksaw','Filter cutter','Tin snips','Knife'],a:1}},
+{id:'eng23',cat:'eng',title:'Compression Test Troubleshoot',emoji:'💨',content:'Low compression troubleshooting: Air from exhaust = exhaust valve leak. Air from intake = intake valve leak. Air from crankcase breather = worn rings/cylinder. Air from adjacent cylinder = head gasket leak between cylinders. Below 60/80: investigate. Below 40/80: cylinder must be removed.',tip:'A cylinder with 50/80 but smooth engine operation may be flyable — but find the cause at next available maintenance.'},
+{id:'eng24',cat:'eng',title:'Ignition Harness Replacement',emoji:'🔌',content:'Replace ignition harness if: cracked insulation, corroded terminals, hard/brittle wire, or resistance out of spec (1,000-5,000 ohms per lead). Harness routing: keep away from exhaust pipes, secure with Adel clamps. Lead must be fully seated and spring-locked at both spark plug and magneto ends.',tip:'A failing harness = mag drop that changes with engine temperature or moisture.',quiz:{q:'Typical ignition lead resistance?',o:['100-500 ohms','1,000-5,000 ohms','10,000-50,000 ohms','100,000+ ohms'],a:1}},
+{id:'eng25',cat:'eng',title:'Starter Overhaul Specs',emoji:'🔌',content:'Prestolite MZ-4230 starter: Armature commutator undercut depth: 0.020-0.030 in. Brush minimum length: 5/16 in (7.9 mm). Spring tension: 32-48 oz. Drive gear: must engage and disengage freely (clean and lubricate). No-load test: draws 50-70A at 12V, 5,000+ RPM.',tip:'Starter that spins but does not engage = worn drive gear or solenoid not throwing fully.'},
+{id:'eng26',cat:'eng',title:'Alternator Output Test',emoji:'⚡',content:'Test: Engine at 1,500 RPM, master ON. Measure voltage at battery: 13.8-14.2V normal charging. Load test: turn on all electrical loads — voltage should stay above 13.0V. Field circuit: master switch closes alternator field relay. If no charge: check belt, field wire (F terminal), regulator connections.',tip:'No charge with good belt = check the 5-amp field breaker on the panel first.',quiz:{q:'Normal charging voltage?',o:['12.0-12.5V','13.8-14.2V','15.0-15.5V','16.0-16.5V'],a:1}},
+{id:'eng27',cat:'eng',title:'Top Overhaul vs Major Overhaul',emoji:'🔧',content:'Top overhaul: Remove cylinders, re-ring, hone/replace cylinders, grind valves, replace gaskets. Does NOT remove crankshaft or touch lower end. Major overhaul: Complete disassembly to bare crankcase. Replace all bearings, rings, seals, gaskets. TBO is 2,000 hr or 12 years. Top overhaul typically done at 1,000 hr.',tip:'If one cylinder needs replacement, Lycoming recommends replacing all 4 simultaneously.'},
+{id:'eng28',cat:'eng',title:'Stud Thread Repair',emoji:'🔧',content:'Stripped stud threads: Use Helicoil or Keensert for aluminum crankcase/cylinder head repairs. Drill out old threads, tap to specified size, install insert. Stud installation depth: 0.500-0.625 in minimum engagement. Use Loctite 271 (stud grade) for installation. Torque stud to 50-80 in-lb.',tip:'A stripped base stud hole in the crankcase is repairable with Helicoil — no need to scrap the case.'},
+{id:'eng29',cat:'eng',title:'Engine Run-In Procedure',emoji:'🔥',content:'After overhaul/top overhaul: Use straight mineral oil (no additives) for break-in. Run at 1,200-1,500 RPM for 5 min to check for leaks. Then run at 75% power (2,400 RPM) for 2 hours minimum with cylinder head temps in normal range. CHT must not exceed 450°F during break-in. After break-in: change oil and filter, inspect element.',tip:'If CHT stays below 350°F during break-in, the rings might not seat properly. Use less cowling or higher power.'},
+{id:'eng30',cat:'eng',title:'Oil Pressure Troubleshoot',emoji:'🛢️',content:'Low oil pressure at idle: Check oil level first. If OK: suspect worn oil pump, worn main bearings, or pressure relief valve stuck open. Relief valve: spring-loaded ball/plunger on crankcase. Remove, clean, check spring free length (1.850 in). Replace if compressed below 1.750 in.',tip:'Try changing oil (correct viscosity) before tearing into the engine for low oil pressure.'},
+{id:'eng31',cat:'eng',title:'CHT Probe Replacement',emoji:'🌡️',content:'CHT probe is a bayonet-type thermocouple under cylinder #3 spark plug (hottest cylinder). Replacement: remove spark plug, install new CHT gasket probe between plug and cylinder head. Torque spark plug to 25-30 ft-lb over the probe. Wire routing: away from exhaust, secure with Adel clamps.',tip:'If CHT gauge reads low or erratic, the probe is likely failing. Always check with an infrared pyrometer first.',quiz:{q:'Which cylinder typically has the CHT probe?',o:['#1','#2','#3','#4'],a:2}},
+{id:'eng32',cat:'eng',title:'Vacuum Pump (Optional)',emoji:'🌀',content:'If installed: engine-driven dry vacuum pump. Dried vane type — vanes wear over time. Normal vacuum: 4.5-5.5 in Hg. Failure: sudden loss of vacuum = gyros fail. No warning — replace every 500 hours or per manufacturer recommendation. Pump replacement: disconnect lines, remove 3 bolts, install new pump with new gasket.',tip:'Always carry a vacuum pump replacement in the hangar. They fail without warning.',quiz:{q:'Normal vacuum reading?',o:['2.5-3.5 in Hg','4.5-5.5 in Hg','6.5-7.5 in Hg','8.5-9.5 in Hg'],a:1}},
+{id:'eng33',cat:'eng',title:'Engine Logbook Requirements',emoji:'📋',content:'Engine logbook must contain: 1) Engine make/model/serial at installation. 2) Total time in service (TTSN). 3) Time since last overhaul. 4) All 100-hr/annual entries with compression readings. 5) Oil change records. 6) AD compliance. 7) Major repair/alteration form 337. 8) Prop strike entries. 9) TBO status.',tip:'A complete engine logbook adds significant value to the aircraft. Keep all entries current.',quiz:{q:'Engine log entries include?',o:['Only oil changes','All maintenance + ADs + TBO','Only annual','No log needed'],a:1}},
+{id:'eng34',cat:'eng',title:'Cylinder Base Crack Inspection',emoji:'🔍',content:'Area: Cylinder base flange at the crankcase. Cracks often start at bolt holes. Method: Clean with solvent, inspect with 10x magnifying glass. Use dye penetrant (red dye/white developer) for suspect areas. A crack from bolt hole to flange edge = unairworthy cylinder. Replace immediately.',tip:'Cracked cylinder flanges are caused by over-torquing base nuts or thermal shock from rapid cooling.'},
+{id:'eng35',cat:'eng',title:'Magneto Timing Procedure',emoji:'🧲',content:'Set both magnetos to fire at 24° BTDC at 500 RPM. Use timing light and timing pin. Install timing pin in crankshaft, rotate engine until pin engages. Connect timing light to #1 plug lead. Rotate engine backward 30°, then forward slowly until light flashes. If not at 24° mark on timing ring, adjust magneto coupling.',tip:'After timing, safety-wire the magneto adjustment nuts. Check engine run-up: max mag drop 175 RPM, diff <50 RPM.',quiz:{q:'Magneto timing BTDC?',o:['20°','24°','28°','32°'],a:1}},
+{id:'eng36',cat:'eng',title:'Prop Governor Not Installed',emoji:'❓',content:'C152 has FIXED-PITCH propeller — no governor. No blue knob. No prop control cables. No carbon blocks, no feathering, no reverse. RPM controlled ONLY by throttle. Fixed-pitch means the prop is optimized for cruise efficiency. Takeoff: 2,550 RPM. Cruise: 2,200-2,450 RPM.',tip:'Because RPM follows airspeed, expect RPM increase in descent and decrease in climb.'},
+{id:'eng37',cat:'eng',title:'Engine Mount Bolt Torque',emoji:'🔧',content:'Engine mount attachment: Bolts at firewall (4 points) and at engine (4 Lord mounts). Firewall bolts: 180-200 in-lb. Lord mount through-bolts: 300-350 in-lb. Use new AN6 bolts and self-locking nuts. Safety-wire all bolts after torquing. Check for movement — if engine shifts on mount, replace bushings.',tip:'An engine that shakes excessively at idle may have loose mount bolts OR bad Lord mounts.'},
+{id:'eng38',cat:'eng',title:'Induction System Leak Check',emoji:'🌬️',content:'Induction system leaks cause lean mixture and rough idle. Check: carburetor gasket at sump, intake pipe gaskets at cylinders, intake pipe O-rings at carburetor. Method: spray carb cleaner at gasket joints while engine idles — if RPM changes, there is a leak. Torque intake nuts to 100-120 in-lb.',tip:'An induction leak downstream of the carburetor creates a lean condition that can cause detonation.'},
+{id:'eng39',cat:'eng',title:'Engine Pre-Oiling Procedure',emoji:'🛢️',content:'Necessary after overhaul or extended storage. Method 1: Fill oil, remove rocker covers, crank with starter (plugs out, mags grounded) until oil flows from all push rod tubes. Method 2: Use pre-oiler tool that pressurizes oil system externally. Never start an engine that has been dry — main bearing damage occurs within seconds.',tip:'Pre-oiling is critical after cylinder replacement. Rings need oil immediately on first start.'},
+{id:'eng40',cat:'eng',title:'Camshaft End Play',emoji:'⚙️',content:'Camshaft end play: 0.003-0.012 in. Measured with dial indicator at camshaft gear. If excessive: replace thrust plate (or spacer). Cam lobe lift: check with micrometer — minimum 0.285 in intake, 0.285 in exhaust. Worn lobes below 0.275 in = replace camshaft.',tip:'Camshaft wear is progressive. If one lobe is worn, the rest are not far behind — replace the set.'},
+{id:'eng41',cat:'eng',title:'Hydraulic Lifter Service',emoji:'🔧',content:'Hydraulic lifters (zero lash): Check for bleed-down time. Compress fully — should leak down in 10-60 seconds. If less than 5 seconds: worn plunger. If more than 120 seconds: stuck plunger. Install with dry exterior (oil on plunger only). After installation, engine will be noisy for 5-10 min until lifters pump up.',tip:'A noisy lifter after start that quiets down = normal. One that stays noisy = failing lifter.'},
+{id:'eng42',cat:'eng',title:'Exhaust System Crack Check',emoji:'🔍',content:'Exhaust crack inspection areas: Flange welds at cylinder head. Collector welds where 4 pipes join. Muffler inlet/outlet welds. AD 83-01-01: muffler baffle check every 100 hr. Internal baffle collapse: restricted exhaust flow = power loss + possible engine damage. Use a mirror and light to check inside muffler.',tip:'A restricted exhaust (collapsed baffle) can cause hard starting and poor performance — easy to misdiagnose as carburetor issue.'},
+{id:'eng43',cat:'eng',title:'Firing Order Verification',emoji:'⚙️',content:'Firing order: 1-3-2-4. Cylinder numbering: #1 = right front (from cockpit view), #2 = right rear, #3 = left front, #4 = left rear. Magneto P-leads: Left mag fires top plugs, Right mag fires bottom plugs. Check with timing light on each lead to verify correct firing order.',tip:'Mistaken firing order usually happens after magneto replacement. Double-check before first start run.',quiz:{q:'O-235 firing order?',o:['1-2-3-4','1-3-2-4','1-4-2-3','1-3-4-2'],a:1}},
+{id:'eng44',cat:'eng',title:'Compression Test Form',emoji:'📝',content:'Record: Cyl #1 ___/80, #2 ___/80, #3 ___/80, #4 ___/80. Note leak source (exh/intake/breather). Date, tach time, ambient temp. Acceptable: all above 60/80 with <20 PSI variation. Marginal: one below 60 but >50 — monitor, recheck in 25 hours. Unairworthy: any below 50/80 or 25+ variation.',tip:'Always do compression test with engine at operating temperature (rings seated best when warm).'},
+{id:'eng45',cat:'eng',title:'Oil Cooler (Optional)',emoji:'🛢️',content:'Some C152s have an oil cooler mounted on the left engine baffle. Check for: oil leaks at hose fittings, bent/damaged cooling fins, secure mounting. Hose condition: replace if cracked or stiff. Oil cooler thermostatic bypass valve: opens at 180°F. If oil runs too cold, bypass valve may be stuck open.',tip:'Low oil temperature (below 140°F) is almost as bad as high — moisture does not boil off, causing sludge.'},
+{id:'fuel1',cat:'fuel',title:'Fuel Line Replacement',emoji:'⛽',content:'Rubber fuel hoses: Replace every 7-10 years per AD recommendations. Part numbers: use aviation-grade MIL-H-6000 or MIL-H-8794 hose. Cutting: use sharp knife/rotary cutter — a diagonal cut reduces flow area. Installation: Adel clamps at 12-inch intervals, no tight bends (min radius 6x hose OD).',tip:'Mark installation date on hose with permanent marker. Date code is critical for AD compliance.',quiz:{q:'Fuel hose replacement interval?',o:['2-3 years','7-10 years','15-20 years','Never'],a:1}},
+{id:'fuel2',cat:'fuel',title:'Gascolator Screen Cleaning',emoji:'🔍',content:'Gascolator (fuel strainer): Location is lower engine firewall. Remove quick-drain plug, remove bowl (retaining wire), remove screen. Clean screen with solvent and brush. Check for: collapsed or torn screen, debris in bowl (indicates tank contamination), gasket condition. Re-torque bowl bolts to 25-30 in-lb. Check for leaks after reassembly.',tip:'If you find sediment in the gascolator, the fuel tanks need to be sumped more thoroughly.'},
+{id:'fuel3',cat:'fuel',title:'Fuel Selector Valve Rebuild',emoji:'🔧',content:'Fuel selector valve (LEFT/RIGHT/BOTH/OFF): Rebuild if leaking or stiff. Disassemble: remove handle nut, pull valve core. Inspect O-rings (replace all). Lubricate with petroleum-compatible grease (MIL-G-23827). Check detent spring and ball — must give positive position feel. Reinstall, check all positions for proper fuel flow.',tip:'A leaking fuel selector can cause fuel to crossfeed when it should not, or not feed when it should.'},
+{id:'fuel4',cat:'fuel',title:'Fuel Quantity Sender Check',emoji:'📊',content:'Float-type fuel senders in each wing tank. Check: float arm travel (full stop to empty stop), float integrity (no fuel inside), sender resistance (full ~0 ohms, empty ~30 ohms). Wire connection: clean and tight. Ground: sender body must be bonded to airframe for accurate reading.',tip:'If a fuel gauge reads full all the time, the float might be stuck or the sender wire is grounded.'},
+{id:'fuel5',cat:'fuel',title:'Fuel Cap Seal Replacement',emoji:'⛽',content:'Fuel cap gaskets: replace when cracked, hardened, or missing. Water ingress through bad cap seals = contaminated fuel. Cap part: Cessna part number or equivalent. Seal material: fuel-resistant rubber. Removal: pull off old gasket, clean cap groove, install new gasket. Locking mechanism: check tumblers for proper function.',tip:'A fuel cap that is hard to turn = the lock mechanism needs lubrication (not force).'},
+{id:'fuel6',cat:'fuel',title:'Electric Boost Pump Test',emoji:'⛽',content:'Boost pump test: Master ON, pump switch ON. You should hear the pump running (located in wing root or firewall). Fuel pressure should indicate 2.0-5.0 PSI. Flow test (during engine run): Turn pump OFF at idle — fuel pressure should drop slightly. Turn ON — should rise. No change = pump not flowing, check circuit breaker, relay, pump.',tip:'The electric boost pump is critical for takeoff and landing. Test it before first flight of the day.',quiz:{q:'Electric boost pump test symptom?',o:['No change = pump not flowing','Loud noise = good','Pressure drop = good','Voltage drop = good'],a:1}},
+{id:'fuel7',cat:'fuel',title:'Fuel Sump Drain Replacement',emoji:'🔧',content:'Wing sump drains (push-pull type): Replace if leaking or stuck closed. Part: Cessna 0711002-1 or equivalent. Installation: apply Loctite 567 (PTFE pipe sealant) to threads. Do NOT overtighten — aluminum threads strip easily. Test: push up to drain, release to seal — must drip no more than 1 drop per minute.',tip:'A stuck sump drain that will not open = water/sediment cannot be drained. Replace immediately.'},
+{id:'fuel8',cat:'fuel',title:'AVGAS 100LL Properties',emoji:'🧪',content:'100LL: Blue dye. Lead content: 0.5-0.7 grams/liter (low-lead). Specific gravity: ~6.0 lb/US gal. Freeze point: -72°F (-58°C). Reid vapor pressure: 7 PSI max. Storage life: 12+ months if sealed and dry. Never use auto gas without an STC — ethanol damages fuel system components.',tip:'If AVGAS is not blue, do not use it. Color change indicates contamination or wrong fuel.',quiz:{q:'100LL weight per gallon?',o:['~6 lb','~7 lb','~8 lb','~9 lb'],a:0}},
+{id:'fuel9',cat:'fuel',title:'Carburetor Air Filter Check',emoji:'🍃',content:'Fram CA-184 dry-paper filter. Inspect: hold up to light — if no light passes through, replace. Filter frame must be intact with no tears in paper. Gasket/seal must be present — unfiltered air bypasses engine wear. Replacement interval: annually or when dirty. In dusty environments, inspect every 50 hours.',tip:'A dirty air filter costs power and increases fuel consumption. Check it at every oil change.'},
+{id:'elec1',cat:'elec',title:'Battery Load Test',emoji:'🔋',content:'Battery load test: Apply 3x amp-hour rating for 15 seconds. Example: 35Ah battery = 105A load. Voltage should stay above 9.6V at 80°F. Below 9.6V = weak battery. If battery is sealed (Concord RG-35), check open-circuit voltage: 12.8V+ = 100% charged, 12.4V = 50%, 12.0V = discharged. Charge at 4A max for 3-5 hours.',tip:'A battery that fails load test but shows good voltage will let you down on a cold morning.',quiz:{q:'Load test current for 35Ah battery?',o:['35A','105A','175A','350A'],a:1}},
+{id:'elec2',cat:'elec',title:'Starter Contactor (Solenoid)',emoji:'🔌',content:'Starter contactor: heavy-duty relay near battery. Fault signs: clicking but no crank (bad contacts or low battery), continuous engagement (welded contacts). Bench test: apply 12V to small terminals — should click and show continuity on large terminals. Replace if contacts are pitted or welded. AD 99-08-01: certain part numbers require inspection.',tip:'Starter stays engaged after engine starts = welded contactor. PULL THE MASTER SWITCH immediately!'},
+{id:'elec3',cat:'elec',title:'Voltage Drop Testing',emoji:'⚡',content:'Voltage drop test: With engine running and load on: measure from battery positive to alternator output terminal — should be <0.2V. Measure battery negative to alternator case — <0.1V. Starter circuit: measure drop between battery positive and starter terminal while cranking — max 0.5V. Higher = high resistance connection.',tip:'A 0.5V drop in the starter circuit = significant power loss at the starter motor.'},
+{id:'elec4',cat:'elec',title:'Alternator Diode Check',emoji:'🔧',content:'Alternator diodes: test with multimeter (diode check mode). Test each diode in forward and reverse bias. Forward: 0.4-0.6V. Reverse: OL (open). A shorted diode = AC ripple in the DC system = avionics interference. Run-up test: with engine at 1,500 RPM, verify no more than 0.1V AC ripple at the battery (set meter to AC).',tip:'AC ripple >0.3V at the battery indicates bad diodes — this can damage avionics.'},
+{id:'elec5',cat:'elec',title:'Master Contactor Check',emoji:'🔌',content:'Master contactor (battery solenoid): When master ON, should click and show battery voltage at both large terminals. When OFF, no continuity. Corrosion on terminals = voltage drop. Check: remove both wires, clean terminals, reinstall with anti-corrosion compound. Replacement: common part, bolt-in replacement.',tip:'If nothing electrical works when master is ON, the master contactor may have failed.'},
+{id:'elec6',cat:'elec',title:'Pitot Heat Element Check',emoji:'🌡️',content:'Pitot heat: measure resistance across the two pitot heat wires at the connector. Typical: 0.5-2.0 ohms (cold). OL (open) = heating element burned out. Ground check: turn pitot heat ON with master ON — wait 30 seconds, touch pitot tube — must be warm. Current draw: ~10A at 14V.',tip:'A burned-out pitot heat element is common. Replace the entire pitot tube assembly if the element is failed.'},
+{id:'elec7',cat:'elec',title:'Avionics Ground Check',emoji:'📡',content:'Avionics ground loop prevention: Single-point ground at battery negative terminal. All avionics must ground to the single point — not to airframe at different locations. Check: measure resistance between each radio chassis and battery negative — must be <0.1 ohm. A noisy radio = suspect ground issue.',tip:'Radio noise that goes away when engine RPM changes is often a ground loop problem.'},
+{id:'elec8',cat:'elec',title:'Alternator Field Wire Check',emoji:'⚡',content:'Alternator field wire: if broken or disconnected, alternator will not charge. Check: With master ON, measure voltage at alternator F (field) terminal — must have battery voltage. No voltage = open field circuit (check 5A field breaker, master switch, wiring). B+ terminal: always has battery voltage (connected directly to battery via contactor).',tip:'A no-charge condition with a good belt is usually a blown field breaker or failed regulator.',quiz:{q:'No charge with good belt — check?',o:['Prop governor','Field breaker','Oil filter','Fuel pump'],a:1}},
+{id:'elec9',cat:'elec',title:'Wiring Repair Standards',emoji:'🔌',content:'Aviation wiring repair: Use FAA-approved methods only. Splices must be: crimped (not soldered — solder creates stress riser), covered with heat shrink. Wire gauge: never use smaller gauge than original. Tinned copper wire required. Terminal ends: crimp-type, not screw-down lugs. Bundle routing: Adel clamps at 12-inch intervals, away from chafe points and hot surfaces.',tip:'A poor wiring repair can cause an electrical fire. Follow AC 43.13-1B Chapter 11 for approved methods.'},
+{id:'elec10',cat:'elec',title:'Transponder ADS-B Check',emoji:'📡',content:'Transponder pitot-static and ADS-B check required every 24 months. 14 CFR 91.411 (static) and 91.413 (transponder). ADS-B (if installed): performance verification required. Check: altitude reporting accuracy (±125 ft), squawk code response, IDENT function, antenna VSWR (<2:1). Must be performed by certified repair station.',tip:'If transponder fails check, the aircraft is grounded for IFR operations and cannot enter Mode C veil airspace.'},
+];
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CARD DATA (part 2 - Technician: Gear, Prop, Flight Controls, Airframe)
+// ═══════════════════════════════════════════════════════════════
+const CARDS2 = [
+{id:'lg1',cat:'lg',title:'Landing Gear Attach Inspection',emoji:'🛞',content:'Main gear: 4130 steel tubular spring, bolted to fuselage at 2 points per side. Torque main gear attach bolts: 300-350 in-lb. Check: cracks at bolt holes, corrosion pitting on spring legs. Nose gear: attach to fuselage through steering yoke. Check kingpin for wear — max 0.010 in clearance.',tip:'A hard landing requires inspection of all gear attach bolts and spring leg condition.',quiz:{q:'Main gear attach bolt torque?',o:['200-250 in-lb','300-350 in-lb','400-450 in-lb','500-550 in-lb'],a:1}},
+{id:'lg2',cat:'lg',title:'Nose Gear Shimmy Damper OH',emoji:'🔧',content:'Shimmy damper (Cleveland/hydraulic): Rebuild if leaking or not damping. Disassemble, clean all parts. Check cylinder bore for scoring. Replace O-rings and seals. Fill with MIL-H-5606 (mineral oil — same as brake fluid). Bleed air by cycling piston 20 times. Install: rod end first, tighten, safety-wire.',tip:'After rebuild, taxi test — nose wheel should not oscillate at any speed. If it does, recheck mounting.'},
+{id:'lg3',cat:'lg',title:'Brake Caliper Overhaul',emoji:'🔧',content:'Cleveland 30-9 caliper: Remove from disc. Disassemble: remove pads, remove piston with air pressure (careful — pops out). Inspect bore/piston for scoring/corrosion. Replace O-ring and dust seal. Lubricate with MIL-H-5606 before assembly. Bench bleed before reinstalling. Torque mounting bolts to 100-120 in-lb.',tip:'If the brake drags, the piston may be sticking from corrosion in the caliper bore.'},
+{id:'lg4',cat:'lg',title:'Brake Master Cylinder OH',emoji:'🔧',content:'Toe brake master cylinders (on rudder pedals): Rebuild if leaking or spongy. Remove clevis pin at pedal, disconnect fluid line. Disassemble: snap ring, pushrod, piston, cup, spring. Replace all seals. Hone bore if lightly corroded (max 0.005 in oversize). Reassemble with MIL-H-5606 lube. Bench bleed before installation.',tip:'Spongy brakes after bleeding = air in system. Bleed from caliper bleeder screw (push fluid up from caliper to reservoir).'},
+{id:'lg5',cat:'lg',title:'Wheel Bearing Adjustment',emoji:'🔧',content:'Tapered roller bearings (Timken). Adjustment: Spin wheel while tightening axle nut to 50 in-lb (seats bearings). Back off nut to first castellation slot. Install new cotter pin. End play: 0.001-0.005 in (barely perceptible wobble). Too tight = bearing overheats, grease melts. Too loose = wheel shimmy, bearing brinelling.',tip:'After adjustment, spin wheel — should rotate freely with no roughness or binding.',quiz:{q:'Wheel bearing end play spec?',o:['0.000 in','0.001-0.005 in','0.010-0.020 in','0.050-0.100 in'],a:1}},
+{id:'lg6',cat:'lg',title:'Brake Disc Runout Check',emoji:'📏',content:'Brake disc runout: max 0.010 in (measured with dial indicator at disc outer edge). If exceeded: remove disc, check wheel half mating surfaces for debris/corrosion. Clean and reassemble with proper bolt torque (50-80 in-lb). If still exceeds, replace disc. Minimum disc thickness: 0.180 in.',tip:'Brake pulsation = disc warpage. Check runout before replacing pads — new pads will wear unevenly on a warped disc.'},
+{id:'lg7',cat:'lg',title:'Wheel Half Bolt Torque',emoji:'🔩',content:'Wheel halves held by 6 bolts. Torque: 50-80 in-lb (4-7 ft-lb). Sequence: tighten in star pattern, 3 steps. Safety wire: all bolts must be wired together in pairs, wire direction must TIGHTEN. Check: after torquing, measure gap between wheel halves — must be even all around.',tip:'Uneven gap = dirt between wheel halves or cross-threaded bolt. Disassemble and fix.',quiz:{q:'Wheel half bolt torque?',o:['20-40 in-lb','50-80 in-lb','100-120 in-lb','150-170 in-lb'],a:1}},
+{id:'lg8',cat:'lg',title:'Parking Brake Adjustment',emoji:'🛑',content:'Parking brake handle under left panel. Adjustment: pull handle full ON. Check that both brakes engage simultaneously. If one side locks before the other: adjust at the master cylinder pushrod. Cable tension: should apply brakes when handle is pulled 1-2 inches from full release. Test: engine 1,700 RPM, pull park brake — must hold aircraft stationary.',tip:'Parking brake that will not hold = cable stretch or air in brake system. Bleed brakes first.'},
+{id:'lg9',cat:'lg',title:'Landing Gear Jack Points',emoji:'🔧',content:'Jack points: Main gear — jack pad on the gear leg step bracket. Nose — jack pad on nose gear steering yoke. NEVER jack on wing struts or spar. Use a tail stand to prevent tipping. Safety: chock wheels not being lifted. Procedure: jack one main at a time for wheel removal, or jack nose + both mains simultaneously for full gear service.',tip:'When jacking the nose, the tail will drop — use a tail stand with padded support.'},
+{id:'lg10',cat:'lg',title:'Nose Gear Steering Cables',emoji:'🔗',content:'Nose gear steering is linked to rudder pedals via cables and springs. Cable tension: 20-40 lbs. Centering springs return nose wheel to straight. If nose wheel shimmies at low speed: check centering spring tension and shimmy damper. Nose gear travel: 18° left and right (from rudder) — beyond that, it casters for towing.',tip:'If the aircraft pulls left during taxi, check nose gear centering springs and tire pressure first.',quiz:{q:'Nose gear steering range?',o:['12°','18°','25°','30°'],a:1}},
+{id:'prop1',cat:'prop',title:'Prop Removal & Install',emoji:'🌀',content:'Removal: Remove spinner and bulkhead. Mark prop position on flange (paint mark). Remove 6 nuts and washers. Use prop puller if tight. Never hammer on prop. Installation: Clean flange and prop bore. Install new bolts (AN6-xx), washers, self-locking nuts. Torque to 55-65 ft-lb in star pattern. Safety wire all 6 bolts. Re-torque after first flight.',tip:'Always use NEW self-locking nuts. Never reuse — they lose locking ability after one torque cycle.',quiz:{q:'Prop bolts torque?',o:['35-45 ft-lb','55-65 ft-lb','75-85 ft-lb','95-105 ft-lb'],a:1}},
+{id:'prop2',cat:'prop',title:'Prop Nick Repair Limits',emoji:'🔧',content:'Small nicks on leading edge: File smooth with fine file, remove all stress risers. Max depth: 0.010 in (shallow scratch). Medium: 0.010-0.030 in — file smooth, polish. Deep: >0.030 in — requires prop shop repair or blade replacement. Nicks on blade face: same depth limits. Trailing edge nicks: more critical, smaller tolerance.',tip:'A filed nick should have NO sharp edges. Use 400-grit sandpaper for final smoothing.',quiz:{q:'Max repairable nick depth?',o:['0.010 in','0.030 in','0.050 in','0.100 in'],a:1}},
+{id:'prop3',cat:'prop',title:'Propeller Track Check',emoji:'📐',content:'Track check: With prop installed, rotate a blade to horizontal. Place a fixed pointer (screwdriver taped to cowling) 1/16 in from blade tip. Rotate prop — the other blade must pass within 1/16 in of the pointer. If more than 1/16 in difference = out of track. Causes: bent blade, propeller mounting issue, or crankshaft flange issue.',tip:'Out-of-track prop = vibration. If track is off, check flange runout first before blaming the prop.',quiz:{q:'Max prop track tolerance?',o:['1/32 in','1/16 in','1/8 in','1/4 in'],a:1}},
+{id:'prop4',cat:'prop',title:'Prop Strike Inspection Steps',emoji:'🔧',content:'After prop strike: 1) Inspect prop for cracks (Zyglo required), 2) Check flange bolt hole elongation, 3) Check crankshaft runout (dial indicator), 4) Remove engine, disassemble, magnaflux crankshaft, 5) Inspect connecting rods for bend, 6) Check accessory case gears for damage. Mandatory: engine log entry describing the strike and inspection performed.',tip:'Even a ground strike that stops the engine instantly requires full teardown per Lycoming SB.'},
+{id:'prop5',cat:'prop',title:'Spinner Bulkhead Cracks',emoji:'🔍',content:'Spinner bulkhead (backplate): Common crack location — around mounting screw holes. Cracked bulkhead can separate spinner in flight. Inspection: remove spinner, clean bulkhead, inspect with 10x magnifier around each hole. Small cracks (<1/4 in): stop-drill. Large cracks: replace bulkhead. Spinner itself: check for cracks at screw holes.',tip:'A loose spinner (wobbling) when rotating = bulkhead cracked or screws loose. Fix before flight.',quiz:{q:'Cracked spinner bulkhead risk?',o:['Noise','Spinner separation','Vibration','Poor performance'],a:1}},
+{id:'prop6',cat:'prop',title:'Prop Static Balance',emoji:'⚖️',content:'Static balance: Mount prop on balance arbor (through center bore). Prop should remain stationary in any position. Heavy blade will settle at bottom — mark it. Remove material from heavy blade back side (only on marked areas — factory balance marks). Maximum imbalance: 1/4 in-oz on a scale. After balancing, re-mark blades for reference.',tip:'A prop that always stops in the same position when rotated is out of balance.'},
+{id:'prop7',cat:'prop',title:'Prop Timer Interval',emoji:'⏱️',content:'Propeller overhaul: Every 5 years or 2,000 hours whichever comes first. Components: must be returned to a certified prop shop. Overhaul includes: disassembly, Zyglo crack inspection of blades and hub, repitch to factory specs, new seals, new gaskets, dynamic balance if available. Maintain a propeller logbook showing dates and times.',tip:'Prop TBO is mandatory — an engine can run past TBO, but props cannot.'},
+{id:'prop8',cat:'prop',title:'Crankshaft Prop Flange',emoji:'🔩',content:'Crankshaft prop flange (SAE 1, 6-bolt): Check bolt holes for elongation — use a go/no-go gauge. Elongation beyond specified limit = replace flange or crankshaft. Flange bolt threads: clean and inspect before each prop installation. Apply anti-seize to bolt threads (not to nuts). Torque: 55-65 ft-lb with calibrated wrench.',tip:'Bolt hole elongation is a sign of a loose propeller in the past. It is a progressive failure.',quiz:{q:'How many bolts on prop flange?',o:['4','6','8','10'],a:1}},
+{id:'ctrl1',cat:'ctrl',title:'Control Cable Tension by Temp',emoji:'📐',content:'Control cable tension (1/8 in 7x7 or 7x19): Standard at 70°F is 25-45 lbs. Temperature compensation: adjust ±1 lb per 10°F from 70°F. 32°F: target 31-38 lbs. 100°F: target 22-32 lbs. Always measure at multiple points along cable run. Use calibrated tensiometer (riser gauge for 1/8 in cable).',tip:'Tight cables in cold weather = relaxed in hot weather. Adjust for the season you are in.',quiz:{q:'Cable tension adjustment per 10°F?',o:['0.5 lb','1.0 lb','2.0 lb','5.0 lb'],a:1}},
+{id:'ctrl2',cat:'ctrl',title:'Turnbuckle Safety Wire',emoji:'🔧',content:'Turnbuckle safety wire: Use 0.040 in stainless steel wire. Required on both eyes of each turnbuckle. Wrap 4 turns minimum around the barrel, then through the eye, wrap 4 more turns. Direction: wire must be TIGHTENING (wrap so that any pull on the wire tightens the turnbuckle). Tape over safety wire to prevent snagging. Inspect at every annual.',tip:'A loose turnbuckle can allow a control surface to separate from the system. Safety wire is critical.'},
+{id:'ctrl3',cat:'ctrl',title:'Aileron Rigging (Differential)',emoji:'📐',content:'Aileron differential: Up aileron travels 20° ±1°, down aileron travels 15° ±1°. The differential creates more drag on the down-going wing, reducing adverse yaw. Adjust at turnbuckles on the aileron cables. Neutral position: both ailerons flush with wing trailing edge. Check: measure with digital level or protractor at the aileron trailing edge.',tip:'If differential is wrong, adverse yaw increases — noticeable in turns.',quiz:{q:'Aileron differential: up vs down?',o:['up 15° down 15°','up 20° down 15°','up 25° down 20°','up 20° down 20°'],a:1}},
+{id:'ctrl4',cat:'ctrl',title:'Elevator Rigging',emoji:'📐',content:'Elevator travel: Up 23° ±1°, Down 15° ±1°. Neutral: elevator trailing edge flush with horizontal stabilizer trailing edge. Adjust at elevator cable turnbuckles. Trim tab (right elevator): neutral position flush with elevator. Trim tab travel: 20° up to 15° down. Verify full travel without binding.',tip:'Incorrect elevator travel affects flare characteristics. Too little up travel = harder to flare.',quiz:{q:'Elevator up travel?',o:['18°','23°','28°','33°'],a:1}},
+{id:'ctrl5',cat:'ctrl',title:'Rudder Rigging',emoji:'📐',content:'Rudder travel: 17° ±1° left and right from neutral. Neutral: rudder aligned with vertical fin centerline. Adjust at rudder cable turnbuckles. Rudder pedal stops: adjustable to limit pedal travel. Nose wheel steering is linked — check nose wheel centering after rudder adjustments. Full rudder should give 18° nose wheel deflection.',tip:'If the rudder does not return to center, check centering springs and cable tension.'},
+{id:'ctrl6',cat:'ctrl',title:'Flap System Rigging',emoji:'🔽',content:'Flap actuator: Electric motor under rear seat, drives a jackscrew. Flap positions: UP (0°), T/O (10° ±1°), FULL (40° ±1°). Microswitches at each position stop the actuator. Adjust microswitch position if flaps over/under travel. Cables: flexible push-pull cables from motor to flap torque tube. Lubricate jackscrew at every 100-hr.',tip:'Flaps that deploy unevenly = rigging issue at the torque tube arms. Check both sides.'},
+{id:'ctrl7',cat:'ctrl',title:'Control Cable Replacement',emoji:'🔧',content:'Replace cable if: >10% of strands broken in one lay length, or corroded, or kinked. Length: measure old cable before removal. New cable swaging: use Nicopress sleeve (copper) for 1/8 in cable. 2 crimps per sleeve with proper dies. Pull test: must hold 500 lbs. After installation: cycle controls fully, recheck tension after 5-10 hours of flight.',tip:'Pre-stretch new cable by applying 100 lbs tension for 30 minutes before final tensioning.'},
+{id:'ctrl8',cat:'ctrl',title:'Flap Actuator Adjustment',emoji:'🔧',content:'Flap actuator jackscrew: Fully retracted = flaps UP (0°). Extend to mid-position: check flaps at 10° ±1° using protractor. Fully extended: check 40° ±1°. Microswitches at each travel limit cut motor power. Adjustment: loosen microswitch bracket, reposition, retighten. Test: cycle flaps through full range 3 times — no binding, no overtravel.',tip:'If flaps stop before 40°, the lower microswitch is triggering too early. Adjust and retest.'},
+{id:'ctrl9',cat:'ctrl',title:'Elevator Trim System Rigging',emoji:'🎯',content:'Elevator trim: Cable-driven spring system that changes elevator control force. Trim tab on right elevator moves opposite to elevator to reduce pilot effort. Rigging: trim wheel full nose-up, trim tab should be at full up (trailing edge up ~20°). Full nose-down: tab ~15° down. Cable tension: 15-25 lbs. Lubricate cable and trim wheel mechanism.',tip:'Trim that is hard to turn = cable binding or dry bearing. Lubricate before adjusting tension.'},
+{id:'ctrl10',cat:'ctrl',title:'Control System Stop Check',emoji:'📐',content:'Control stop adjustment: Limit control surface travel to manufacturer specs. Stops are typically on the control column (elevator) and rudder pedals. Check: apply full control in each direction — verify stop contact before any binding in cables or pulleys. Full control movement must feel SOLID at the stop — not cushioned by cable stretch.',tip:'Soft control stops = cables are taking the load instead of the stops. Danger of overstressing the airframe.'},
+{id:'ctrl11',cat:'ctrl',title:'Control Cable Fray Check',emoji:'🔍',content:'Cable inspection method: Run a dry cotton cloth along the full length of each cable. If the cloth snags or catches, there are broken wires. Mark the location. Measure the lay length (where fray is located). If >10% of strands are broken within one lay length: replace the cable. Pay special attention at pulley contact areas and fairlead passages.',tip:'Cables ALWAYS break at pulley contact points. Focus your inspection there.',quiz:{q:'Cable replacement threshold?',o:['5% strands broken','10% strands broken','20% strands broken','50% strands broken'],a:1}},
+{id:'ctrl12',cat:'ctrl',title:'Aileron Cable Rigging',emoji:'🔗',content:'Aileron control system: Cables run from control wheel to bellcranks in each wing. Left and right aileron cables are separate circuits, cross-connected at the control column. Neutral rig: Both ailerons flush with trailing edge. Tension: 25-45 lbs (compensated). Pay special attention to pulleys in the wing root area — common chafe point.',tip:'Aileron rigging affects the aircraft\'s roll response. Improper rigging = heavy control forces.'},
+{id:'ctrl13',cat:'ctrl',title:'Pulley Bearing Replacement',emoji:'🔧',content:'Control pulleys: Aluminum or phenolic. Replace if: groove is worn more than 1/2 the cable diameter, bearing is rough/noisy, flanges are chipped. Remove cotter pin, slide pulley off pin. Install new pulley, ensure smooth rotation. Grease fitting (if equipped): apply 2 pumps of Aeroshell 5. Verify cable is centered in pulley groove.',tip:'A pulley with a seized bearing creates friction and can cause the cable to wear rapidly.'},
+{id:'ctrl14',cat:'ctrl',title:'Control Surface Hinge Pin Wear',emoji:'🔩',content:'Piano hinge (continuous hinge pin): Check for vertical play at the trailing edge. Grasp trailing edge, lift — max acceptable play is 1/8 in at the outboard end. Worn hinge = control surface flutter risk. Pin removal: tap out from one end with a pin punch. Pin wear area: at each hinge bracket. Replace pin if worn more than 0.010 in diameter.',tip:'If hinge pins are difficult to remove, they are corroded. Apply penetrating oil and work them free.'},
+{id:'ctrl15',cat:'ctrl',title:'Flap Position Indicator Rig',emoji:'🎛️',content:'Flap position indicator in the cockpit: cable-driven from flap torque tube. Adjust: with flaps FULL UP, set indicator to UP mark. Extend flaps to FULL DOWN — indicator should point to FULL (40°). If not, adjust at the indicator cable connection at the torque tube arm. Cable tension: 15-20 lbs. Indicator face: clean and legible.',tip:'If the indicator shows a different position than the actual flaps, fix the indicator — do not rely on \"feel\".'},
+{id:'frame1',cat:'frame',title:'Skin Repair — Stop-Drill',emoji:'🔧',content:'Cracked skin (non-structural only): Stop-drill at each end of crack. Use #40 (0.098 in) drill bit. Drill 1/16 in past the visible crack tip. DO NOT stop-drill on: wing spar caps, control surface hinge brackets, or primary structure. For those, follow SRM. After stop-drilling: monitor crack at next 100-hr — if it extended, more extensive repair needed.',tip:'Stop-drill hole must be at the very end of the crack. Drill from the good skin INTO the crack tip.',quiz:{q:'Stop-drill bit size?',o:['#60 (0.040 in)','#40 (0.098 in)','#30 (0.128 in)','#20 (0.161 in)'],a:1}},
+{id:'frame2',cat:'frame',title:'Rivet Spacing & Edge Distance',emoji:'📐',content:'Standard rivet spacing: Edge distance: 2D (where D = rivet diameter). Rivet pitch: 4D for structural, 6D for non-structural. Minimum edge distance: 1.5D (never less — skin will tear out). Maximum pitch: 24D for oil-tight joints. For 3/32 in rivets: edge 0.188 in, pitch 0.375 in. For 1/8 in rivets: edge 0.250 in, pitch 0.500 in.',tip:'A rivet too close to the edge will cause the skin to tear out. Measure edge distance from center of rivet hole.',quiz:{q:'Minimum edge distance for rivets?',o:['1.0D','1.5D','2.0D','3.0D'],a:1}},
+{id:'frame3',cat:'frame',title:'Rivet Identification Chart',emoji:'🔩',content:'MS20470AD-4-5 = Universal head, 3/32 in diameter, 5/16 in long. AN426AD-4-5 = Countersunk 100°, same. Diameter: -3 = 3/32, -4 = 1/8, -5 = 5/32, -6 = 3/16. Length: -3 = 3/16, -4 = 4/16 (1/4), -5 = 5/16. Always select length so that 1.5D of shank protrudes above the skin for proper shop head formation.',tip:'A rivet that is too short will not form a proper shop head. Too long = bulky head that may crack.'},
+{id:'frame4',cat:'frame',title:'Corrosion Removal & Treatment',emoji:'🧪',content:'Surface corrosion (white powder, light pitting): Remove with Scotchbrite pad or aluminum wool (never steel wool — steel embeds and causes galvanic corrosion). Treat with Alodine (chemical conversion coating). Prime with etching primer. Paint with matching color. Deep pitting (>0.010 in): measure remaining skin thickness — if below minimum, patch or replace.',tip:'Corrosion under a paint blister is always worse than it looks. Remove ALL paint to assess the full extent.',quiz:{q:'What to NEVER use on aluminum?',o:['Scotchbrite','Steel wool','Aluminum wool','Alodine'],a:1}},
+{id:'frame5',cat:'frame',title:'Wing Strut Attach Bolt',emoji:'🔩',content:'Wing strut: 4130 steel tube, streamlined cross-section. Upper end: clevis fork bolted to wing spar fitting. Lower end: bolted to fuselage fitting. Bolt torque: 250-300 in-lb. Use AN6 bolts with self-locking nuts. Inspect for: corrosion at the strut ends (inside — water enters through bolt holes), cracks at weld joints, loose attach bolts.',tip:'Strut corrosion from the inside is invisible. Tapping the strut with a coin — a dull thud instead of a clear ring = internal corrosion.'},
+{id:'frame6',cat:'frame',title:'Wing Spar Inspection (AD)',emoji:'🔍',content:'AD 2000-07-05: Wing spar carry-through inspection. Area: center section of main spar under the fuselage. Method: remove floor panels, clean spar surface, inspect with 10x magnifier for cracks. Cracks typically start at rivet holes. Eddy-current inspection may be required for high-time airframes. If cracks found: spar replacement or engineering-approved repair.',tip:'This AD was prompted by a wing separation. Do not defer if cracks are found.'},
+{id:'frame7',cat:'frame',title:'Fuselage Longeron Repair',emoji:'🔧',content:'Damaged longeron (cracked or corroded): Repair per Cessna SRM. Spliced repair: 1) Cut out damaged section with 1/4 in radius at corners, 2) Fabricate doubler from same material and thickness, 3) Doubler must extend 6 inches past each end of damage, 4) Rivet doubler to remaining longeron and skin. Countersunk rivets where aerodynamic smoothness is needed.',tip:'Longerons are primary structure. Any repair beyond simple patching requires engineering data (Form 337).'},
+{id:'frame8',cat:'frame',title:'Floor Board Replacement',emoji:'🔩',content:'Cabin floor: aluminum honeycomb or sheet panels. Remove seats, floor covering. Replace if: corroded through, crushed honeycomb, or fastener holes elongated. New panel: cut from same thickness 2024-T3 aluminum. Rivet to floor structure using MS20470 rivets. Seal edges with fuel-resistant sealant. Reinstall seat track — check track security.',tip:'Wet floors = corrosion. Find and fix the water leak before replacing the floor.'},
+{id:'frame9',cat:'frame',title:'Acrylic Window Repair',emoji:'🔧',content:'Crazed window (fine cracks): can be polished out with acrylic polish/buffing compound. Deep cracks: replace window. Remove trim ring, push window out (from inside — careful not to crack painted surfaces). New window: cut from 1/8 in acrylic (per Cessna part number). Drill holes 1/16 in larger than screw diameter (thermal expansion). Install with trim ring, new gasket.',tip:'Never use Windex, alcohol, or acetone on acrylic. Use ONLY soap + water or Plexiglas cleaner.',quiz:{q:'Crazed window treatment?',o:['Replace always','Polish out if shallow','Ignore','Paint over'],a:1}},
+{id:'frame10',cat:'frame',title:'Door Latch Adjustment',emoji:'🚪',content:'Left door: Top-hinged, latch mechanism at lower edge. If door rattles or leaks: adjust latch striker plate (loosen screws, reposition, retighten). Latch pin: must engage striker by at least 1/4 in. Check door seal condition. If door is hard to close: latch mechanism may need lubrication (graphite powder, not oil — oil attracts dirt). Emergency exit (right window): pull handle — window must pop open freely.',tip:'If the door pops open in flight, do not panic. Fly normally, land, and fix the latch.'},
+{id:'frame11',cat:'frame',title:'Static Port Check',emoji:'🔍',content:'Static ports: flush-mounted ports on each side of fuselage (aft of cabin). Blocked port = inaccurate altimeter and VSI. Check: during preflight, verify ports are clear of debris (bugs, wasp nests, tape). Annual: remove port fitting, check O-ring, clean with solvent, blow out line with low-pressure air (20 PSI max — instruments are sensitive).',tip:'A wasp nest in a static port is common. Always check before first flight after the aircraft has been parked.'},
+{id:'frame12',cat:'frame',title:'Antenna Bonding',emoji:'📡',content:'Antenna bonding (static discharge): Each antenna must be electrically bonded to the airframe. Bonding strap: copper braid, 3/4 in wide, 6 in max length. Resistance: <0.01 ohm between antenna base and airframe ground. Corroded bond = static noise in radios. Check: remove antenna, clean base and airframe contact points, reinstall with new bonding strap.',tip:'Radio static during flight that disappears on the ground = bonding issue, not a radio problem.'},
+{id:'frame13',cat:'frame',title:'Fuel Cap Bonding Wire',emoji:'⛽',content:'Fuel caps have a bonding wire or spring tab to prevent static spark when fueling. Check: wire/spring must contact both the cap and the filler neck ring. Broken bond wire = static spark risk during fueling. Replacement: solder or crimp new wire. Quick check: use ohmmeter between cap and airframe — should read <1 ohm.',tip:'Static spark during fueling can ignite fuel vapors. Never fuel without the bonding connection.'},
+{id:'frame14',cat:'frame',title:'Bilge Area Corrosion Check',emoji:'🔍',content:'Bilge area (lowest part of fuselage under floor): Remove access panels. Look for: water stains, white powder (corrosion), soft spots in floor. Common sources: door seal leaks, windshield leaks, brake fluid spills. Clean: vacuum debris, wash with soap + water, dry thoroughly. Treat any corrosion found (remove, Alodine, prime, paint).',tip:'If the aircraft was parked outside, always check the bilge. Water accumulates there and causes hidden corrosion.'},
+{id:'frame15',cat:'frame',title:'Rivet Removal Technique',emoji:'🔧',content:'Removing rivets: 1) Center-punch rivet head. 2) Drill through head with bit 1/64 in smaller than rivet diameter (for 1/8 in rivet = #30 bit, for 3/32 in = #40 bit). 3) Use pin punch to shear the head off. 4) Drive remaining shank out with pin punch. NEVER ream or oversize the rivet hole. If hole is damaged, step up to next size rivet.',tip:'Drilling too deep damages the underlying structure. Stop drilling as soon as the head separates — feel for the drop in resistance.',quiz:{q:'Drill size for 1/8 in rivet removal?',o:['#20','#30','#40','#50'],a:1}},
+];
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CARD DATA (part 3 - Technician: Inspections, Torque, ADs, Procedures, Cockpit)
+// ═══════════════════════════════════════════════════════════════
+const CARDS3 = [
+{id:'insp1',cat:'insp',title:'100-Hour Inspection Scope',emoji:'🔍',content:'14 CFR 91.409(b): Required for aircraft operated for hire or flight instruction. Scope per Part 43 Appendix D: engine, propeller, airframe, flight controls, landing gear, instruments, electrical, radios. Must be signed off by A&P. Includes: compression test, oil filter cut, spark plug service, cable inspection, AD check.',tip:'A 100-hour is NOT an annual — it does not renew the airworthiness certificate.',quiz:{q:'Who can sign 100-hour?',o:['Owner','A&P','A&P with IA','Pilot'],a:1}},
+{id:'insp2',cat:'insp',title:'Annual Inspection Scope',emoji:'📅',content:'14 CFR 91.409(a): Required every 12 calendar months. Must be signed by A&P with IA. Scope: Part 43 Appendix D + all applicable ADs. Result: Approved for Return to Service or discrepancy list. Common items: compression test, oil filter, spark plugs, control cable tension, tire condition, brake pads, AD compliance, W&B update.',tip:'Annual \"expires\" on last day of month shown on the airworthiness certificate. No grace period.',quiz:{q:'Who signs annual?',o:['Any A&P','A&P with IA','Pilot','School owner'],a:1}},
+{id:'insp3',cat:'insp',title:'Part 43 Appendix D Checklist',emoji:'📋',content:'Sections: 1) Propeller group, 2) Engine group, 3) Landing gear group, 4) Airframe group (surfaces, cables, skin), 5) Cockpit/panel group (instruments, switches, placards), 6) Electrical/radio group, 7) All other items (ADs, logs, W&B). Each item must be checked for: condition, security, proper operation.',tip:'Print the Appendix D checklist and use it — experienced IAs still use a written checklist.'},
+{id:'insp4',cat:'insp',title:'Engine Compression Log',emoji:'💨',content:'Record at every 100-hr/annual: Cyl #1 ___/80, Cyl #2 ___/80, Cyl #3 ___/80, Cyl #4 ___/80. Note leak location (EXH/INT/BRTH). Ambient temp and tach time. Same IA should do consecutive compressions for trend analysis. A cylinder dropping 10 PSI between inspections needs attention even if still above 60/80.',tip:'Trend is more important than individual values. A cylinder going from 75 to 62 needs investigation.'},
+{id:'insp5',cat:'insp',title:'Compression Test — Valve vs Ring',emoji:'🔧',content:'Air from EXHAUST = exhaust valve leak (burned valve, carbon on seat, tight clearance). Air from INTAKE = intake valve leak. Air from CRANKCASE BREATHER = worn rings or cylinder. Air from ADJACENT CYLINDER = head gasket failure between cylinders. Record where the air is coming from — it tells you what to fix.',tip:'A valve leak can sometimes be fixed by lapping. A ring leak = cylinder must come off.',quiz:{q:'Air from breather indicates?',o:['Exhaust valve','Worn rings','Intake valve','Head gasket'],a:1}},
+{id:'insp6',cat:'insp',title:'Magneto Check (Run-Up)',emoji:'🧲',content:'Run-up at 1,700-2,000 RPM. Switch L — max drop 175 RPM, max diff 50 RPM between mags. Run-up at higher RPM (2,000+) for more sensitive test. If drop is excessive: suspect spark plugs first (most common), then ignition leads, then magneto. Carb heat check: pull ON — RPM should drop 100-200 RPM (warmer, less dense air).',tip:'If mag drop is rough (engine shakes), not smooth — a plug is fouled or a lead is breaking down.',quiz:{q:'Max mag drop at run-up?',o:['125 RPM','175 RPM','225 RPM','275 RPM'],a:1}},
+{id:'insp7',cat:'insp',title:'Idle Speed & Mixture Check',emoji:'🎛️',content:'Warm engine, throttle closed. Idle speed: 600-700 RPM. If RPM drops below 600 or engine quits: increase idle stop screw. Idle mixture check: bring to 1,000 RPM, pull mixture to idle cutoff — engine must stop within 5 seconds. If it runs longer: idle mixture too rich. If it stops immediately: mixture too lean.',tip:'Engine that idles rough but runs fine at power = spark plugs or idle circuit issue.'},
+{id:'insp8',cat:'insp',title:'Oil Filter Cut & Inspect',emoji:'🔬',content:'Cut filter with dedicated filter cutter (not hacksaw — metal shavings). Stretch element out, inspect under bright light. Normal: fine black carbon. Suspicious: fine metallic dust. Silver/aluminum = bearing wear. Magnetic particles = steel gear wear. Copper = bushing wear. Critical criteria: chunks, flakes, or any non-magnetic metal particles — ground engine.',tip:'Save the filter element in a plastic bag if you find metal — show it to the IA for evaluation.',quiz:{q:'Hacksaw acceptable for filter cutting?',o:['Yes','No — contaminates sample','Only if new blade','With lubricant'],a:1}},
+{id:'insp9',cat:'insp',title:'Control Cable Tension Check',emoji:'🔗',content:'Measured with calibrated tensiometer. Standard (70°F): 25-45 lbs. Temp adjust: ±1 lb per 10°F. Measure at 3 points along cable run. If tension varies significantly (>10 lbs): probable pulley binding or cable damage. Record all readings in logbook. Safety wire all turnbuckles after adjustment — 4 turns minimum each end.',tip:'Temperature compensation example: 32°F day = target 31-38 lbs. 100°F day = target 22-32 lbs.'},
+{id:'insp10',cat:'insp',title:'Battery Service Check',emoji:'🔋',content:'Wet cell (Gill G-35): Check electrolyte level — fill with DISTILLED WATER only to bottom of filler tube. Check specific gravity: 1.275-1.300 (fully charged), 1.200 (50%), 1.100 (discharged). Sealed (Concord RG-35): Check voltage — 12.8V+ = charged, 12.0V = discharged. Load test: Apply 105A for 15 sec — must stay above 9.6V at 80°F. Corrosion: clean terminals with baking soda + water.',tip:'A battery that is low on water has been overcharged. Check the voltage regulator setting.',quiz:{q:'Wet cell battery fill?',o:['Tap water','Distilled water','Battery acid','Nothing'],a:1}},
+{id:'insp11',cat:'insp',title:'Spark Plug Annual Service',emoji:'🔥',content:'Every 100 hr/annual: Remove all 4 plugs (label by cylinder). Inspect: cracked ceramic, electrode erosion, deposits. Clean: media blast or wire brush. Gap: 0.016-0.021 in (use round wire feeler gauge — flat gauge may be inaccurate). New copper gasket. Torque: 25-30 ft-lb. Reinstall leads — must fully seat and lock. Run engine, check mag drop — should be lower than before service.',tip:'Index plugs: align the open side of the electrode gap toward the intake valve for best combustion.',quiz:{q:'Spark plug gap spec?',o:['0.012-0.016 in','0.016-0.021 in','0.021-0.025 in','0.025-0.030 in'],a:1}},
+{id:'insp12',cat:'insp',title:'Brake & Tire Annual Check',emoji:'🛞',content:'Jack aircraft. Spin each wheel — listen for bearing roughness. End play check: rock wheel top/bottom — max 0.005 in. Brake pad min: 1/16 in. Disc min thickness: 0.180 in. Tire condition: tread wear bars visible? Sidewall cuts? Pressure: 30 PSI. Wheel alignment: toe-in 0° to 1/16 in. Safety wire: all wheel bolts wired correctly.',tip:'A wheel that stops spinning quickly with a grinding sound = bad bearing or dragging brake.'},
+{id:'insp13',cat:'insp',title:'Propeller Annual Inspection',emoji:'🌀',content:'Remove prop from flange. Clean and inspect: blade surface (nicks, cracks, corrosion), leading edge condition, blade tip condition. Zyglo crack check (fluorescent dye) — mandatory. Flange bolt hole inspection: no elongation. Track check after reinstallation: within 1/16 in. Torque bolts to 55-65 ft-lb, safety wire. Log entry required.',tip:'Use new self-locking nuts EVERY time the prop is reinstalled. Never reuse.',quiz:{q:'Prop crack inspection method?',o:['Visual only','Zyglo (fluorescent)','X-ray','Ultrasonic'],a:1}},
+{id:'insp14',cat:'insp',title:'Fluid Level Check Points',emoji:'🛢️',content:'Preflight engine: Oil level (dipstick — do not overfill past 6 qt). Brake fluid: reservoir under cowling (MIL-H-5606, must be visible). Battery electrolyte: if wet cell, distilled water to fill ring. Windshield washer: n/a on 152. All fluid caps and dipsticks must be secure after checking.',tip:'Check oil with engine cold (oil has drained to sump). Hot oil reading is inaccurate.'},
+{id:'insp15',cat:'insp',title:'Avionics Check Procedure',emoji:'📡',content:'Turn on master, avionics master. Radios: key mic — transmit on tower freq, listen for side tone. Receive: tune to ATIS/ASOS, verify clear reception. VOR: tune VOR test freq, verify needle centers with 4° max error. Transponder: squawk 1200, verify reply light flashes. GPS (if installed): verify satellite acquisition, database current. Log any discrepancies.',tip:'A radio that transmits but does not receive (or vice versa) often needs a new tray or connector cleaning.'},
+{id:'insp16',cat:'insp',title:'ELT Annual Check',emoji:'🆘',content:'ELT test: during first 5 min of any hour. Toggle switch to ON — listen on 121.5 for the sweep tone. Max 3 sweeps, then OFF. Check: battery expiration date (replace if expired or >50% of life used), G-switch (tilt test — should activate at 45° angle), remote switch in cockpit, antenna connection and cable condition. Log test results and next battery due date.',tip:'If the ELT accidentally activates and you cannot turn it off, disconnect the antenna coax cable.'},
+{id:'insp17',cat:'insp',title:'W&B Check Procedure',emoji:'⚖️',content:'Required after repairs/modifications. 1) Place aircraft on level floor, 2) Level longitudinally (use level on door sill reference), 3) Place scales under each wheel, 4) Record weights (nose + left main + right main), 5) Use moment arms from datum to calculate CG, 6) Compare to POH CG envelope. Maximum change without re-weigh: 1% of MTOW or 0.2 in CG change.',tip:'The C152 datum is typically at the firewall, but verify in the POH — some variants differ.',quiz:{q:'When is W&B required?',o:['Only after paint','After repairs/modifications','Only annually','Never'],a:1}},
+{id:'insp18',cat:'insp',title:'Landing Gear Wobble Test',emoji:'🛞',content:'With aircraft on jacks: Grasp each tire at the top and bottom. Push/pull firmly. Acceptable play: 0.001-0.005 in (barely feelable). Excessive play (>0.010 in): check wheel bearings first, then axle nut torque, then steering linkage (nose gear). Any play in the main gear spring leg attachment = worn bushings — replace.',tip:'If the wheel wobbles but the bearing feels smooth, the axle may be bent or the wheel flange is damaged.'},
+{id:'insp19',cat:'insp',title:'Engine Mount & Vibration Check',emoji:'🔩',content:'Check engine mounts: 4 Lord rubber vibration isolators. Signs of failure: rubber separating from metal, cracking, compression set (mount is thinner than new). If any mount is bad, replace all 4. Also check: mount tubes for cracks at welds, engine attach bolts for torque (180-200 in-lb). Excessive engine vibration at any power setting = mount issue or prop imbalance.',tip:'Engine vibration that changes with RPM is more likely prop. Vibration that stays at all RPMs = engine mount.'},
+{id:'insp20',cat:'insp',title:'Cabin & Interior Check',emoji:'💺',content:'Checked at annual: Seat tracks — cracks at bolt holes, security (AD 99-08-01 related). Seat belt webbing — fraying, latch operation. Shoulder harness — retraction, attachment. Emergency exit — window pops freely. Fire extinguisher — verify charged, gauge in green, mount secure. Placards — all legible, no missing. Door latch — positive lock, no rattles.',tip:'A seat that moves in the tracks during takeoff is a known Cessna issue. Always check track lock.'},
+{id:'torque1',cat:'torque',title:'Engine Torque Table — Top End',emoji:'🔧',content:'Spark plugs: 25-30 ft-lb. Cylinder base nuts: 100-120 in-lb. Cylinder through bolts: 35-40 ft-lb. Rocker box cover: 25-30 in-lb. Rocker shaft bolts: 120-180 in-lb. Push rod tube seals: no torque (press fit with O-rings). Intake pipe nuts: 100-120 in-lb. Exhaust pipe nuts: 100-120 in-lb. Always use NEW self-locking nuts.',tip:'in-lb and ft-lb are different! 120 in-lb = 10 ft-lb. DO NOT confuse them — stripped threads are the result.',quiz:{q:'Spark plug torque?',o:['15-20 ft-lb','25-30 ft-lb','35-40 ft-lb','45-50 ft-lb'],a:1}},
+{id:'torque2',cat:'torque',title:'Engine Torque Table — Bottom End',emoji:'🔩',content:'Connecting rod nuts: 265-275 in-lb (22-23 ft-lb). Main bearing nuts: 35-40 ft-lb. Crankcase through bolts: 110 in-lb (final step). Oil sump bolts: 70-80 in-lb. Oil drain plug: 10-12 ft-lb. Oil filter: hand-tight + 3/4 turn (18-20 ft-lb). Prop flange bolts: 55-65 ft-lb.',tip:'Connecting rod nuts are the most critical torque in the engine. Use a calibrated wrench and new nuts every time.'},
+{id:'torque3',cat:'torque',title:'Airframe Torque Table',emoji:'🔧',content:'Engine mount bolts: 180-200 in-lb. Wing attach bolts (spar): 250-300 in-lb. Wing strut attach: 250-300 in-lb. Seat track bolts: 50-70 in-lb. Seat belt attach: 50-70 in-lb. Control column stops: 100-120 in-lb. Pulley bracket bolts: 50-70 in-lb. Fairlead attach: 25-35 in-lb. All bolts: use self-locking nuts or safety wire.',tip:'Wing attach bolts are life-limited — check service hours since new. Replace at specified interval.',quiz:{q:'Wing strut bolt torque?',o:['150-200 in-lb','250-300 in-lb','350-400 in-lb','450-500 in-lb'],a:1}},
+{id:'torque4',cat:'torque',title:'Landing Gear Torque Table',emoji:'🔩',content:'Main gear attach bolts: 300-350 in-lb. Nose gear attach: 300-350 in-lb. Brake caliper bolts: 100-120 in-lb. Brake disc bolts: 50-80 in-lb. Wheel half bolts: 50-80 in-lb. Axle nut: 50-80 in-lb (then back off to slot for cotter pin). Shimmy damper bolts: 150-200 in-lb. Steering linkage bolts: 100-120 in-lb.',tip:'A loose brake caliper bolt will cause the caliper to rotate with the wheel — brake line gets ripped off.'},
+{id:'torque5',cat:'torque',title:'Propeller Torque Table',emoji:'🔧',content:'Propeller mounting bolts: 55-65 ft-lb (dry — no anti-seize on the bolt threads that go into the crankshaft). Prop flange bolts (crank to flange): 55-65 ft-lb. Spinner bulkhead screws: 15-20 in-lb. Spinner screws: 10-15 in-lb. Use cross-torque pattern (star pattern). Retorque after first flight after prop installation.',tip:'Beam-type torque wrench is preferred for prop bolts. Click-type wrenches may not click at low settings.',quiz:{q:'Prop bolt torque method?',o:['Circle pattern','Star pattern','One at a time','Random'],a:1}},
+{id:'torque6',cat:'torque',title:'Control System Torque Table',emoji:'🔧',content:'Control cable turnbuckle: 25-35 in-lb (jam nuts). Pulley guard bolts: 25-35 in-lb. Control surface hinge bolts: 50-70 in-lb. Elevator trim tab bolts: 25-35 in-lb. Flap torque tube bolts: 100-120 in-lb. Flap actuator mounts: 100-120 in-lb. All control system hardware MUST be safety-wired or have cotter pins.',tip:'Control system hardware failure = loss of control. Double-check every bolt and nut in the control system.'},
+{id:'torque7',cat:'torque',title:'Engine Accessory Torque',emoji:'🔧',content:'Magneto mounting: 180-200 in-lb. Magneto drive coupling: 70-80 in-lb. Alternator mounting: 180-200 in-lb. Starter mounting: 180-200 in-lb. Alternator pulley nut: 250-300 in-lb. Vacuum pump mounting: 180-200 in-lb. Tachometer drive: 50-70 in-lb. All accessory mounting bolts must be safety-wired.',tip:'Alternator/starter mounting bolts that come loose will allow the unit to shift and destroy the belt/drive.',quiz:{q:'Magneto mounting torque?',o:['100-120 in-lb','180-200 in-lb','250-300 in-lb','350-400 in-lb'],a:1}},
+{id:'torque8',cat:'torque',title:'Avionics/Instrument Torque',emoji:'🔧',content:'Instrument mounting screws: 10-15 in-lb (do not overtighten — plastic cases crack). Radio tray mounting: 25-35 in-lb. Antenna mounting: 25-35 in-lb. Static line fittings: 50-70 in-lb. Pitot line fittings: 50-70 in-lb. Avionics ground lug: 25-35 in-lb. Battery terminal nuts: 50-70 in-lb.',tip:'Over-torqued instrument mounting screws can crack the instrument case. Use a small torque screwdriver.'},
+{id:'ad1',cat:'ad',title:'AD 98-10-04: Tailcone Bulkhead',emoji:'📋',content:'Applicability: Cessna 150/152 models with tailcone bulkhead P/N 04110033-1 or -2. Requirement: Repetitive eddy-current inspection every 500 hours of the tailcone bulkhead near the vertical fin attachment. Cracks start at rivet holes and propagate aft. Compliance: documented in logbook. Terminating action: replacement with improved bulkhead.',tip:'This is a fatigue-related AD. High-time airframes are more likely to develop cracks.',quiz:{q:'AD 98-10-04 inspection interval?',o:['100 hr','500 hr','1,000 hr','Annual'],a:1}},
+{id:'ad2',cat:'ad',title:'AD 2000-07-05: Wing Spar',emoji:'📋',content:'Applicability: All Cessna 150/152 models. Requirement: Repetitive eddy-current inspection of the wing spar carry-through structure for cracks. Inspect at each 100-hr/annual until 10,000 flight hours, then every 500 hours. Cracks at spar bolt holes. If cracks found: immediate grounding until repair or replacement. Also check SB 93-01-01 for additional spar guidance.',tip:'This AD was issued after a fatigue-related wing separation. Compliance absolutely mandatory.',quiz:{q:'Wing spar AD cause?',o:['Corrosion','Fatigue cracking','Bird strike','Lightning'],a:1}},
+{id:'ad3',cat:'ad',title:'AD 83-01-01: Muffler Inspection',emoji:'📋',content:'Applicability: Cessna 150/152 models with certain muffler P/Ns. Requirement: Repetitive inspection every 100 hours. Remove muffler shroud, inspect internal baffles for collapse/cracks using a mirror and light. If exhaust leaks into the heat shroud: muffler must be replaced. This is the most common recurring AD on the C152.',tip:'CO kills. A cracked muffler can fill the cabin with carbon monoxide in minutes during flight.',quiz:{q:'AD 83-01-01 interval?',o:['50 hr','100 hr','Annual','500 hr'],a:1}},
+{id:'ad4',cat:'ad',title:'Lycoming SB 388C: Crankshaft',emoji:'📋',content:'Mandatory Service Bulletin 388C: Requires magnetic particle inspection (Magnaflux) of the O-235 crankshaft. Trigger: during any engine overhaul or after a propeller strike. Cracked crankshaft = replace. Also: inspect the crankshaft gear bolt per AD 2011-13-15. Check serial number applicability before assuming compliance.',tip:'A cracked crankshaft can fail without warning. This SB is critical for airframes with prop strike history.'},
+{id:'ad5',cat:'ad',title:'Slick Magneto Recurring ADs',emoji:'📋',content:'Slick 4000/6000 series magnetos: multiple ADs affecting: 1) Impulse coupling (AD 86-13-03) — inspect for broken springs. 2) Gear shear (AD 2005-04-10) — potential for magneto gear failure causing total power loss. 3) Internal coil failure (AD 96-14-08) — blowout at high RPM. Check specific magneto model and serial numbers for applicability. Compliance: inspect at each annual.',tip:'Slick magneto ADs are common. Always check if the installed magneto model is affected.'},
+{id:'ad6',cat:'ad',title:'AD 2011-13-15: Crank Gear Bolt',emoji:'📋',content:'Lycoming O-235 crankshaft gear bolt: Certain P/N bolts can fail in service. Failure = loss of oil pressure AND loss of alternator/magneto drive simultaneously. Requirement: inspect at overhaul or within 500 hours of the AD effective date. Replace bolt per instructions. This is a life-limited part — track hours on the gear bolt.',tip:'Crankshaft gear bolt failure = dual magneto drop + no oil pressure = total engine failure.',quiz:{q:'Crank gear bolt failure causes?',o:['Oil leak','Loss of oil + alternator + mags','Engine noise','Prop vibration'],a:1}},
+{id:'ad7',cat:'ad',title:'AD 99-08-01: Starter Contactor',emoji:'📋',content:'Applicability: Cessna 152 with certain starter contactor part numbers. Problem: Internal failure can cause the starter to remain engaged after engine start. Starter motor continues to spin with engine = overheating + fire risk. Action: Inspect contactor, replace if suspect P/N. Compliance: before next flight after AD effective date.',tip:'If the starter stays engaged after start — KILL THE MASTER SWITCH immediately. Then troubleshoot.',quiz:{q:'AD 99-08-01 addresses?',o:['Oil filter','Starter contactor','Fuel line','Prop governor'],a:1}},
+{id:'ad8',cat:'ad',title:'Fuel Hose Replacement ADs',emoji:'📋',content:'Multiple ADs and service bulletins require replacement of rubber fuel hoses on a time interval. Typical: 7-10 years for under-cowling fuel hoses. Check: date stamp on each hose (usually printed every 6 inches along the hose). If no date stamp or date exceeds the interval: replace. Hoses showing cracks, stiffness, or chafing: replace regardless of date.',tip:'Always put the installation date on the new hose with a permanent marker — avoids date confusion later.'},
+{id:'ad9',cat:'ad',title:'Seat Track ADs Overview',emoji:'📋',content:'Multiple ADs address Cessna seat track cracks (AD 99-08-01 extension). Inspection area: both pilot and co-pilot seat tracks where the seat roller engages. Cracks at rivet holes. If crack extends to the edge: replace track. Interim action: stop-drill. A cracked seat track can allow the seat to slide aft during takeoff — pilot loses control of rudder pedals.',tip:'Rock the seat back and forth on the ground — if it moves more than 1/4 in, check the track for cracks.',quiz:{q:'Cracked seat track risk?',o:['Seat wobbles','Seat can slide back during T/O','Just noise','Visual only'],a:1}},
+{id:'ad10',cat:'ad',title:'AD Note: Compass Compensation',emoji:'📋',content:'While not a separate AD, 14 CFR 23.1325 requires that the compass correction card be accurate. After any electrical modification or major repair: re-compensate the compass. Check: correction card data matches actual compass deviation. With engine ON, all electrical ON: aircraft on compass rose. Deviation >10° from known heading: compensation required.',tip:'Radios and electrical equipment affect the compass. Always compensate with all electrical systems operating.'},
+{id:'proc1',cat:'proc',title:'Cylinder Replacement Procedure',emoji:'🔧',content:'1) Remove rocker covers, push rods, intake/exhaust, plugs. 2) Remove cylinder base nuts (100-120 in-lb) and through bolts (35-40 ft-lb). 3) Tap cylinder loose with rubber mallet — lift straight up off studs. 4) Clean crankcase mating surface. 5) New rings on piston (stagger gaps 120°). 6) New base gasket (or O-ring — check which type). 7) Install cylinder onto studs, carefully guide rings into bore. 8) Torque base nuts (50-60 then 100-120 in-lb). 9) Torque through bolts (35-40 ft-lb). 10) Install push rods, adjust valves, install rocker covers.',tip:'Mark push rods before removal — they must go back in the same position.',quiz:{q:'Cylinder base nut torque sequence?',o:['All at once','Diagonal pattern','Clockwise','Random'],a:1}},
+{id:'proc2',cat:'proc',title:'Oil Filter Cut & Inspect Guide',emoji:'🔬',content:'1) Drain oil from filter into waste pan. 2) Use filter cutter tool (rotate around can). Remove top. 3) Pull out pleated element. 4) Unfold element completely. 5) Hold under bright light — look for: fine black carbon (normal), metallic particles (silver/aluminum = bearing), magnetic fines (steel = gear), copper (bronze bushing), chunks (serious). 6) Run magnet across element to check for ferrous metal. 7) If suspicious particles found: save in plastic bag for IA evaluation.',tip:'If you find metal, change the oil again in 10 hours and re-check. If metal reappears, engine investigation is needed.'},
+{id:'proc3',cat:'proc',title:'Valve Lash Adjustment Steps',emoji:'🔧',content:'1) Remove rocker box covers. 2) Rotate prop to bring cylinder to TDC compression (both valves closed). 3) Check clearance with feeler gauge between rocker arm and valve stem tip. 4) Intake: 0.004-0.008 in. Exhaust: 0.006-0.012 in. 5) Adjust by loosening locknut, turning adjustment nut, re-tightening locknut. 6) Re-check clearance after tightening. 7) Rotate engine 360°, re-check. 8) Install new rocker box gaskets, torque covers to 25-30 in-lb.',tip:'Always check and adjust valves with the engine COLD (room temperature).',quiz:{q:'Exhaust valve clearance range?',o:['0.004-0.008 in','0.006-0.012 in','0.008-0.014 in','0.010-0.016 in'],a:1}},
+{id:'proc4',cat:'proc',title:'Brake Bleeding Procedure',emoji:'🛑',content:'1) Fill reservoir with MIL-H-5606. 2) Attach hose to caliper bleeder screw, other end in catch bottle. 3) Open bleeder screw. 4) Push brake pedal slowly (full stroke) — watch for air bubbles in hose. 5) Close bleeder screw before releasing pedal. 6) Repeat until no bubbles appear. 7) Top off reservoir. 8) Repeat on other side. 9) Test: pump brakes 3 times — pedal must be firm with 1/2 in or less travel before engagement.',tip:'Spongy brakes = air still in the system. Let the brake fluid sit for 10 minutes after bleeding — air rises to the top.'},
+{id:'proc5',cat:'proc',title:'Control Cable Replacement Steps',emoji:'🔗',content:'1) Remove old cable: measure length, note routing, cable guards, pulley positions. 2) Route new cable using the old cable as a guide (tape new to old, pull through). 3) At each pulley: ensure cable rides in groove center. 4) Swage end fittings: use Nicopress sleeve, 2 crimps with proper dies. 5) Attach to turnbuckles. 6) Apply initial tension (20-25 lbs). 7) Cycle controls full travel 3 times (seats cable into pulleys). 8) Final tension: 25-45 lbs (temp compensated). 9) Safety wire turnbuckles. 10) Log entry with final tension values.',tip:'Use a cable-puller tool to apply tension before locking turnbuckles — much easier than turning turnbuckles under tension.'},
+{id:'proc6',cat:'proc',title:'Alternator Belt Replacement',emoji:'🔄',content:'1) Note belt routing before removal (photo helps). 2) Loosen alternator pivot bolt and adjustment bolt. 3) Push alternator toward engine, remove old belt. 4) Install new belt (same cross-section and length — check P/N). 5) Pry alternator outward until belt tension is correct: 1/2-3/4 in deflection at longest span midpoint. 6) Tighten adjustment bolt first (180-200 in-lb), then pivot bolt. 7) Start engine, verify charging. 8) Re-check tension after 5-10 hrs operation (new belts stretch).',tip:'If the new belt squeals at startup, it is either too loose or glazed. Check tension first.'},
+{id:'proc7',cat:'proc',title:'Static System Leak Test',emoji:'📊',content:'1) Connect static test adapter to static port (or T-fitting at instrument). 2) Apply vacuum equivalent to -1,000 ft altitude. 3) Hold vacuum for 1 minute — must NOT leak down. 4) Release, check altimeter accuracy at various simulated altitudes (±20 ft at sea level for 14 CFR 91.411). 5) Check VSI zeros at static. 6) Reconnect pitot line, test pitot pressure hold. 7) Verify pitot heat operation. 8) Log results and next due date.',tip:'If static system fails leak test, check the static port O-rings first — most common failure point.',quiz:{q:'Static system test interval?',o:['Annual','12 months','24 months','60 months'],a:2}},
+{id:'proc8',cat:'proc',title:'Wheel Bearing Repack',emoji:'🔧',content:'1) Jack aircraft, remove wheel. 2) Remove axle nut, flat washer, wheel assembly. 3) Pry out bearing cone (inner), then remove grease seal and outer cone. 4) Clean all parts with solvent (bearing cones, cups, spacer). 5) Inspect: pitting, spalling, brinelling, discoloration (overheated). Replace if damaged. 6) Pack bearings with Aeroshell 5 wheel bearing grease. 7) Install outer cone, new grease seal, inner cone. 8) Reinstall on axle — torque nut to 50 in-lb, back off to first slot, install cotter pin. Final end play: 0.001-0.005 in.',tip:'Use a bearing packer tool for best results. Hand-packing is acceptable but must force grease through from the wide side.',quiz:{q:'Wheel bearing grease type?',o:['Engine oil','Aeroshell 5','MIL-H-5606','WD-40'],a:1}},
+{id:'proc9',cat:'proc',title:'Elapsed Time Since Installation',emoji:'⏱️',content:'Aircraft maintenance relies on tracking time. Three time measurements: 1) Tach time — from tachometer (engine RPM-based). 2) Hobbs meter — clock that runs with engine oil pressure. 3) Flight hours — pilot logbook. For maintenance: use tach time or time-in-service per aircraft records. Always verify the logbook time matches the instruments at each inspection start.',tip:'Tach time at cruise runs slower than Hobbs. At 2,400 RPM, ~1 tach hr = 1.1 Hobbs hr.'},
+{id:'proc10',cat:'proc',title:'Propeller Strike Procedure',emoji:'💥',content:'Prop strike definition: Rotation of the propeller by hand or while running strikes any object. Steps: 1) Ground aircraft — do not fly. 2) Remove propeller, inspect for cracks (Zyglo). 3) Check crankshaft flange for damage/elongation. 4) Check crankshaft runout (max 0.002 in). 5) Remove engine per Lycoming SB — requires full teardown. 6) Inspect: crankshaft (Magnaflux), connecting rods, camshaft, accessory gears. 7) Replace all damaged parts. 8) Reassemble, run-in, log entry.',tip:'A prop strike that did not stop the engine still requires inspection. Crank damage can exist without stopping.',quiz:{q:'Prop strike requires?',o:['Clean prop only','Engine teardown per SB','Change oil','Just visual check'],a:1}},
+{id:'proc11',cat:'proc',title:'Carburetor Idle Adjustment',emoji:'🎛️',content:'1) Run engine to operating temperature. 2) Reduce to idle — note RPM. 3) If RPM too low or high: adjust idle speed screw. Target: 600-700 RPM. 4) Check idle mixture: smoothly pull mixture to idle cutoff at 1,000 RPM — engine should stop within 5 seconds. 5) If too fast to stop: idle mixture is too rich (turn idle mix screw IN 1/2 turn). 6) If stops too quickly (<1 sec): idle mixture too lean (turn OUT 1/2 turn). 7) Recheck after each adjustment.',tip:'Always make small adjustments (1/8 to 1/4 turn) and let the engine stabilize before rechecking.'},
+{id:'proc12',cat:'proc',title:'Magneto-to-Engine Timing',emoji:'🧲',content:'1) Remove #1 top and bottom spark plugs. 2) Install timing pin in crankshaft (if equipped) or use timing disk on prop flange. 3) Rotate engine to #1 TDC compression (both valves closed). 4) Set timing ring to 0°. 5) Rotate engine backward 30° (to clear backlash), then forward to 24° BTDC. 6) Connect timing light to #1 ignition lead. 7) Rotate engine to 500 RPM while observing timing light — should flash at exactly 24° BTDC. 8) Loosen magneto coupling nuts and rotate magneto body until timing light flashes at 24°. 9) Tighten nuts, recheck, safety-wire.',tip:'Left and right magnetos must be timed independently. Right mag should also fire at 24° ±1° BTDC.',quiz:{q:'Magnetic timing BTDC?',o:['20°','24°','28°','32°'],a:1}},
+{id:'proc13',cat:'proc',title:'Oil Suction Screen Check',emoji:'🛢️',content:'Some O-235 variants have a suction screen (not a filter) on the lower left side of the crankcase. Check at every oil change: 1) Remove screen plug (large hex) — have a pan ready, oil will drain. 2) Pull out the wire mesh screen. 3) Inspect for debris — metal particles, carbon chunks, sludge. 4) Clean with solvent and brush. 5) Reinstall screen, torque plug to 50-60 ft-lb. 6) Top off oil, run engine, check for leaks.',tip:'Metal particles on the suction screen are a more serious finding than in the oil filter — the screen catches larger debris.'},
+{id:'proc14',cat:'proc',title:'Tire Balance Check',emoji:'🛞',content:'For aircraft tires: dynamic balance is preferred but static balance is acceptable. Static: Mount wheel/tire assembly on a balance stand. Heavy spot settles to bottom. Add balance weights on the heavy side (opposite the heavy spot). Acceptable imbalance: within 1/4 oz. Unbalanced tire = vibration during taxi and takeoff roll. Tire with a flat spot cannot be balanced — replace it.',tip:'Most C152 tires are not balanced in practice, but a vibration during rollout that disappears in the air is an unbalanced tire.'},
+{id:'cockpit1',cat:'cockpit',title:'Pitot Static System Check',emoji:'📊',content:'Pitot tube: Left wing strut, electrically heated. Static ports: flush on each fuselage side below the windshield. Line routing: aluminum line from pitot to ASI, from static to altimeter/VSI. Pitot heat: 10A at 14V — tested by feeling tube warmth 30 sec after turn-on. 24-month check per 91.411: leak test, altimeter calibration (±20 ft at SL), VSI zero check.',tip:'If the airspeed indicator works but the altimeter is stuck, the static line is blocked (not the pitot line).',quiz:{q:'Pitot location on C152?',o:['Nose','Left wing strut','Right wing','Tail'],a:1}},
+{id:'cockpit2',cat:'cockpit',title:'Tachometer Drive Cable',emoji:'⏱️',content:'Tachometer is mechanically driven by a flexible cable from the engine accessory case. Cable outer housing: check for chafing, tight bends (min radius 6 in). Drive end at engine: square drive must engage fully. Cable replacement: if needle jumps or bounces at steady RPM — cable is binding or dry. Lubricate with graphite cable lube (graphite powder). Never use oil — it gum up.',tip:'If the tach reads zero at idle but jumps up at higher RPM, the cable is likely broken or disconnected at the engine end.'},
+{id:'cockpit3',cat:'cockpit',title:'Altimeter Inspection Check',emoji:'🔝',content:'Altimeter must be checked every 24 months per 14 CFR 91.411. Bench check: Set to local baro, check altitude at various pressure settings. Accuracy: ±20 ft at sea level, increasing tolerance at higher altitudes. Also check: Kollsman window clarity, baro setting knob friction, case for damage/leaks. A failed altimeter check = cannot fly IFR or in Class A airspace.',tip:'If altimeter reads high (shows higher than actual altitude) — you are LOWER than the instruments indicate. Danger!',quiz:{q:'Altimeter check interval?',o:['12 mo','24 mo','36 mo','60 mo'],a:1}},
+{id:'cockpit4',cat:'cockpit',title:'Airspeed Indicator Check',emoji:'🏎️',content:'ASI check during static system test: Apply pitot and static pressure at various airspeeds. Compare to standard (should match within ±3 KIAS at cruise). Check: pointer smoothness (no sticking), no moisture in case (fogging indicates leaking seal), case seal integrity. Color arc markings: verify they are correct and not faded. White 40-85, Green 47-111, Yellow 111-149, Red 149 KIAS.',tip:'If the ASI needle vibrates at any speed, there is air in the pitot line or a loose connection.'},
+{id:'cockpit5',cat:'cockpit',title:'Vacuum Gyro Instruments',emoji:'🌀',content:'If installed: Vacuum pump drives attitude indicator and directional gyro. Normal vacuum: 4.5-5.5 in Hg. Low vacuum (<4.0): gyro precession increases, instruments unreliable. Filter: check/clean the vacuum filter at annual. Failure sign: gyro noise or slow spool-up on start. If vacuum fails: partial panel with turn coordinator, compass, airspeed, altimeter — practice this.',tip:'Partial panel flying (without gyros) is a required skill. Practice it in VMC conditions to stay sharp.'},
+{id:'cockpit6',cat:'cockpit',title:'Instrument Panel Lighting',emoji:'💡',content:'Instrument flood lights (LED or incandescent): Replace bulbs if burned out. Post light: Individual post lights around each instrument — check bulbs and wiring. Dimming: rheostat knob controls brightness. Fuse/breaker: typically one breaker for panel lights. For night flight: ALL instrument lights must be operational (14 CFR 91.205).',tip:'Red instrument lights preserve night vision. If the white lights fail, a red-lens flashlight is a legal backup.'},
+{id:'cockpit7',cat:'cockpit',title:'Turn Coordinator Check',emoji:'🔄',content:'Electric turn coordinator: Self-erecting gyro. Check before flight: turn master ON, listen for gyro spool-up (high-pitched whine). Check: in a turn, the miniature aircraft banks in the direction of turn — must indicate standard rate (2 minutes for 360°). Inclinometer ball: free movement. Vibration: no unusual sounds. A failed turn coordinator = no backup attitude reference for partial panel.',tip:'The turn coordinator is electric, so it works if the alternator fails. It is your only gyro in a partial panel scenario.'},
+{id:'cockpit8',cat:'cockpit',title:'Fuel Quantity Gauge Calibration',emoji:'⛽',content:'C152 fuel gauges (L/R) are electrically driven by float-type senders in each wing. Calibration check at annual: With known fuel quantity, check gauges read correctly. Accuracy: ±5% is typical — not highly accurate. Common problems: float arm binding, float leaking (fills with fuel = reads empty), sender resistance drift, gauge calibration drift. Corrective action: remove sender, test resistance through full range.',tip:'If the gauge reads full but the tank is low, the float is likely stuck in the up position.'},
+{id:'cockpit9',cat:'cockpit',title:'ELT Installation & Antenna',emoji:'🆘',content:'ELT mounted in the tailcone (behind baggage compartment). Antenna: whip antenna on top of fuselage. Coax cable: RG-58, routed along fuselage. Check: coax for kinks/cuts at access points, antenna base for corrosion, coax connector at ELT for secure attachment. Battery: must be replaced when expired or when ELT has been used for >1 hour cumulative. ELT must be accessible for remote activation — G-switch activates on impact.',tip:'The ELT antenna is fragile — be careful when working in the tailcone area not to damage the coax connection.'},
+{id:'cockpit10',cat:'cockpit',title:'Required Placards & Markings',emoji:'📋',content:'C152 required placards: 1) Airworthiness certificate (forward of baggage or on panel). 2) Registration certificate. 3) Operating limitations (POH or placard). 4) Compass correction card. 5) Fuel grade/oil grade placard near filler caps. 6) Baggage limit placard (120 lbs). 7) Maneuver limits — no aerobatics except spins. All placards must be legible. Missing/faded placards = airworthiness discrepancy. Replace with original part numbers.',tip:'If a placard is missing, the aircraft is technically not airworthy. Order replacements promptly.',quiz:{q:'Required certificate in cockpit?',o:['Only pilot cert','AWC + Registration','Maintenance manual','Insurance card'],a:1}},
+];
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// UNLIMITED CARD GENERATOR — creates infinite variations
+// ═══════════════════════════════════════════════════════════════
+const GEN_TEMPLATES = [
+  {cat:'gen',emoji:'📐',t:['C152 Empty Weights','Useful Load Breakdown','Takeoff Performance','Landing Performance','Wing Loading','Power Loading','Fuel Burn Rates','Max Ramp Weight','Density Altitude Effects','MTOW Variations'],
+   c:['Empty weight of a C152 typically ranges from {a} to {b} lbs depending on installed equipment and avionics.',
+      'With MTOW {a} lbs and empty weight {b} lbs, useful load is {c} lbs. Subtract fuel (6 lb/gal) and pilot for remaining payload.',
+      'Takeoff distance over 50-ft obstacle at MTOW, sea level: ~{a} ft. Increases ~15% per 1,000 ft density altitude.',
+      'Landing distance over 50-ft obstacle with full flaps: ~{b} ft. Add 10% for each 5 kt tailwind component.',
+      'Wing area {a} sq ft. Wing loading at MTOW: {b} lbs/sq/ft. Affects stall speed and ride quality in turbulence.',
+      'With {a} HP at {b} lbs MTOW, power loading is {c} lbs/HP. Lower = better climb performance.',
+      '75% power burns ~{a} GPH. 55% power burns ~{b} GPH. Leaning above 5,000 ft saves ~1 GPH.',
+      'Max ramp weight: {a} lbs. This exceeds takeoff weight slightly to account for taxi fuel burn before takeoff.',
+      'Density altitude increases T/O roll ~10% per 1,000 ft DA. On a 90°F day at 5,000 ft DA, expect 50% longer T/O.',
+      'MTOW {a} lbs. One typical category: Normal. Some models certified in Utility category at reduced weight.'],
+   a:[['1,088','1,158'],['1670','1100','570'],['1,385'],['1,075'],['160','10.4'],['110','1670','15.2'],['6.5','5.2'],['1,670'],['15','50'],['1670']],
+   tip:['Actual empty weight varies — check the specific W&B for your aircraft.','Useful load = pilot + passenger + bags + fuel. Use known weights.','Short field performance degrades significantly with density altitude.','Landing distance increases 10% for every 5 kt tailwind.','Lower wing loading = better short field, rougher ride in turbulence.','Power loading directly affects climb rate.','Leaning properly can save 1+ GPH — significant on long flights.','The ramp weight allowance is typically 7-10 lbs.','On a hot day at high altitude field, performance is dramatically reduced.','Utility category may restrict aft CG range for spins.'], tag:'spec'},
+  {cat:'eng',emoji:'⚙️',t:['Oil Consumption Normal','Engine Pre-Heating','Cold Start Tips','Hot Start Tips','Engine Dry Tach Check','Through-Bolt Inspection','Oil Suction Screen','Cylinder Rock Test','Push Rod Inspection','Engine Preservation'],
+   c:['Normal oil consumption on the O-235: ~{a} quart per hour. Much higher = worn rings or valve guides. Lower = normal.',
+      'When temps below {a}°F: pre-heat is recommended before starting. Use a portable engine heater or hangar.',
+      'Cold start below {a}°F: {b} strokes of primer, mixture rich, throttle cracked. If no start, add 1 more prime stroke.',
+      'Hot start (engine warm): No prime, mixture rich, throttle FULL OPEN, key to start. Once catch, reduce throttle.',
+      'Tachometer accuracy check: With engine at {a} RPM on a calibrated tach, indicated should read ±25 RPM.',
+      'Cylinder through-bolts should be checked for looseness at every {a}-hour — a loose bolt indicates possible barrel shift.',
+      'Oil suction screen (some models): Inspect at oil change. Metal particles indicate {a} wear — investigate further.',
+      'Before removing a cylinder, perform a rock test: Rock the cylinder at the top — excessive movement = {a} wear.',
+      'Push rods should be straight and roll smoothly. Slight bend = {a} damage risk. Replace any bent push rod immediately.',
+      'For engine storage over {a} months: Fill oil, spray preservative in cylinders through plug holes, rotate prop weekly.'],
+   a:[['0.5','1.0'],['32'],['50','3'],['700'],['75','100'],['100'],['internal','bearing'],['mount','spigot'],['valve','pushrod'],['3','6']],
+   tip:['Sudden increase in oil consumption is always a sign of something wearing.','Cold starting without pre-heat below freezing causes accelerated cylinder wear.','Too much prime = flooded. Clear with idle cutoff + full throttle.','Hot engines may fire on full throttle without any prime at all.','Inaccurate tach = incorrect power setting — safety concern.','A loose through-bolt can allow the cylinder to shift during operation.','Metal in oil screen requires engine investigation — do not ignore it.','Excessive rock movement = the spigot mount is worn or cracked.','Bent push rods indicate clearing or valve issues — find root cause.','Long-term storage without preservation leads to internal corrosion.']},
+  {cat:'fuel',emoji:'⛽',t:['Fuel Burn Calculation','Tank Fuel Management','Boost Pump Check','Primer Line Check','Fuel Selector Seal','Water Detection','Fuel Cap Seal','Carb Ice Awareness','Fuel Sample Procedure','Fuel Grade Cross-Reference'],
+   c:['Fuel endurance calculation: {a} gal usable / {b} GPH burn × 0.75 reserve = {c} hours max planned flight time.',
+      'With {a} gal each wing, fly on BOTH until takeoff. For prolonged flight, use LEFT then RIGHT to balance weight.',
+      'Boost pump flow check: With pump ON and engine running, fuel pressure should indicate {a} PSI minimum.',
+      'Primer line check: Remove the primer line at the engine, pump primer — should deliver {a} fuel with no air bubbles.',
+      'Fuel selector valve seals can deteriorate over time. Check for {a} leaks at the valve handle during annual.',
+      'Water in fuel appears as {a} beads that do not mix with blue AVGAS. They settle at the bottom of the sample cup.',
+      'Fuel cap seals prevent water ingress. Dried/cracked seals: {a}. Replace any gasket that shows wear.',
+      'Carb ice risk is highest when temp is {a}°F and visible moisture or high humidity is present.',
+      'Fuel sample procedure: Sample until fuel runs {a} and free of contaminants. If water found, keep sampling until clear.',
+      '100LL is blue. If the fuel is {a} or another color, DO NOT USE. Possible contamination or incorrect fuel grade.'],
+   a:[['24.5','6.5','2.8'],['13','12','11'],['2.0','0.5'],['steady','pulsating'],['fuel','weeping'],['clear','distinct'],['Replace','Inspect'],['20-70','15-80'],['clear','blue'],['green','yellow']],
+   tip:['Always plan for 1-hour reserve in your fuel calculation.','Balancing fuel in prolonged cruise on one tank helps lateral trim.','The boost pump should also be tested in-flight briefly.','Air bubbles in primer line = sucking air somewhere.','Fuel smell in the cockpit can come from a leaking selector.','Water sinks — check the LOWEST point (gascolator) last.','A missing fuel cap seal can let rain into the tank.','Do not wait for symptoms — apply carb heat proactively.','If you find water, check all drains and taxi to shake loose more.','NEVER trust fuel that is not the correct color.']},
+];
+// Total generated cards possible from templates: effectively unlimited
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════════════
+const ALL_CARDS = [...CARDS, ...CARDS2, ...CARDS3];
+const TOTAL_CARDS = ALL_CARDS.length;
+let cards = [...ALL_CARDS];
+let currentIndex = 0;
+let viewedCards = JSON.parse(localStorage.getItem('c152_viewed')||'{}');
+let bookmarks = JSON.parse(localStorage.getItem('c152_bm')||'[]');
+let streak = JSON.parse(localStorage.getItem('c152_streak')||'{"count":0,"last":"","xp":0}');
+let isAnimating = false;
+let filterCat = null;
+let isShuffled = false;
+let savedPositions = JSON.parse(localStorage.getItem('c152_positions')||'{}');
+function savePosition() {
+  let key = filterCat || '__all__';
+  savedPositions[key] = currentIndex;
+  localStorage.setItem('c152_positions', JSON.stringify(savedPositions));
+}
+function restorePosition(forCat) {
+  let key = forCat || '__all__';
+  return savedPositions[key] || 0;
+}
+let quizMode = false;
+let quizCards = [];
+let quizIndex = 0;
+let quizScore = 0;
+let quizTotal = 0;
+let genCount = 0;
+
+function getCache() {
+  let c = localStorage.getItem('c152_gen');
+  if(c) try{return JSON.parse(c)}catch(e){}
+  return {};
+}
+function setCache(v) {
+  localStorage.setItem('c152_gen',JSON.stringify(v));
+}
+
+// ═══ PWA INSTALL ═══
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show')});
+document.getElementById('installBtn').addEventListener('click',()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').classList.remove('show')})}});
+document.getElementById('installClose').addEventListener('click',()=>{document.getElementById('install-banner').classList.remove('show')});
+
+// ═══ GENERATE UNLIMITED CARDS ═══
+function generateCard(forceCat) {
+  genCount++;
+  let tmpl;
+  if(forceCat) {
+    let matches = GEN_TEMPLATES.filter(t=>t.cat===forceCat);
+    tmpl = matches.length ? matches[genCount % matches.length] : GEN_TEMPLATES[genCount % GEN_TEMPLATES.length];
+  } else {
+    tmpl = GEN_TEMPLATES[genCount % GEN_TEMPLATES.length];
+  }
+  let ti = Math.floor(Math.random() * tmpl.t.length);
+  let ci = tmpl.c[Math.min(ti, tmpl.c.length-1)];
+  let ai = tmpl.a ? tmpl.a[Math.min(ti, tmpl.a.length-1)] : [];
+  let txt = ci;
+  if(ai && ai.length) {
+    for(let i=0;i<ai.length;i++) {
+      if(typeof ai === 'string') break;
+      let vals = ai[i] ? ai[i].split('/') : ['?'];
+      let v = vals[Math.floor(Math.random()*vals.length)];
+      txt = txt.replace('{'+String.fromCharCode(97+i)+'}', v);
+    }
+  }
+  let tipArr = tmpl.tip || ['Important for maintenance technicians to know.'];
+  let tip = tipArr[Math.min(ti, tipArr.length-1)];
+  let id = 'gen_' + Date.now() + '_' + genCount;
+  return {
+    id, cat: tmpl.cat, emoji: tmpl.emoji,
+    title: tmpl.t[Math.min(ti, tmpl.t.length-1)],
+    content: txt, tip: tip
+  };
+}
+
+function getVisibleCards() {
+  if(filterCat) return cards.filter(c=>c.cat===filterCat);
+  return cards;
+}
+
+function ensureCardCount() {
+  let vis = getVisibleCards();
+  let safety = 0;
+  while(vis.length < 10 && safety < 50) {
+    safety++;
+    let newCard = generateCard(filterCat);
+    if(!cards.find(c=>c.id===newCard.id)) {
+      cards.push(newCard);
+    }
+    vis = getVisibleCards();
+  }
+}
+
+function filterByCategory(cat) {
+  savePosition();
+  filterCat = cat || null;
+  localStorage.setItem('c152_lastFilter', filterCat || '');
+  let sel = document.getElementById('catSelector');
+  if(sel) sel.value = cat || '';
+  let idx = restorePosition(cat);
+  cards = [...ALL_CARDS];
+  let vis = getVisibleCards();
+  if(vis.length) {
+    currentIndex = Math.min(idx, vis.length - 1);
+    renderCard(currentIndex);
+  }
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  let feedBtn = document.querySelector('[data-view="feed"]');
+  if(feedBtn) feedBtn.classList.add('active');
+}
+
+(function populateCatSelector() {
+  let sel = document.getElementById('catSelector');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">All Topics</option>' +
+    CATEGORIES.map(c => `<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
+  sel.addEventListener('change', function() {
+    filterByCategory(this.value);
+  });
+})();
+
+// ═══ UI ═══
+const container = document.getElementById('cardContainer');
+const toast = document.getElementById('toast');
+
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>toast.classList.remove('show'),2000);
+}
+
+function trackView(id) {
+  viewedCards[id] = (viewedCards[id]||0)+1;
+  localStorage.setItem('c152_viewed',JSON.stringify(viewedCards));
+  // XP for viewing
+  if(viewedCards[id] <= 1) {
+    streak.xp += 3;
+  } else {
+    streak.xp += 1;
+  }
+  localStorage.setItem('c152_streak',JSON.stringify(streak));
+  updateStreak();
+}
+
+function renderCard(index) {
+  let vis = getVisibleCards();
+  ensureCardCount();
+  vis = getVisibleCards();
+  if(index < 0) index = 0;
+  if(index >= vis.length) {
+    // Generate more cards
+    for(let i=0;i<10;i++) {
+      let nc = generateCard();
+      if(!cards.find(c=>c.id===nc.id)) {
+        cards.push(nc);
+      }
+    }
+    vis = getVisibleCards();
+  }
+  if(vis.length === 0) return;
+  currentIndex = Math.min(index, vis.length-1);
+  let card = vis[currentIndex];
+  let cat = CAT_MAP[card.cat] || CATEGORIES[0];
+  let sel = document.getElementById('catSelector');
+  if(sel) { sel.value = card.cat; sel.style.background = cat.color+'33'; }
+  trackView(card.id);
+  
+  let qBtn = document.getElementById('quizBtn');
+  if(card.quiz) {
+    qBtn.style.display = 'flex';
+    qBtn.dataset.quiz = 'true';
+  } else {
+    qBtn.style.display = 'flex';
+    qBtn.dataset.quiz = 'false';
+  }
+  
+  let bmBtn = document.getElementById('bookmarkBtn');
+  if(bookmarks.includes(card.id)) {
+    bmBtn.textContent = '❤️';
+    bmBtn.classList.add('bookmarked');
+  } else {
+    bmBtn.textContent = '🤍';
+    bmBtn.classList.remove('bookmarked');
+  }
+  
+  container.innerHTML = `<div class="card" id="activeCard">
+    <div class="emoji">${card.emoji||'✈️'}</div>
+    <div class="title">${card.title}</div>
+    <div class="content">${card.content}</div>
+    ${card.tip ? `<div class="tip"><div class="tip-label">💡 Pro Tip</div><div class="tip-text">${card.tip}</div></div>` : ''}
+    <div class="card-num">#${currentIndex+1} of ∞</div>
+  </div>`;
+  savePosition();
+}
+
+function animateTo(index, dir) {
+  if(isAnimating) return;
+  let oldEl = document.getElementById('activeCard');
+  if(!oldEl) { renderCard(index); return; }
+  isAnimating = true;
+  let exitClass = dir > 0 ? 'exit-up' : 'exit-down';
+  oldEl.classList.add(exitClass);
+  setTimeout(()=>{
+    renderCard(index);
+    let newEl = document.getElementById('activeCard');
+    if(newEl) {
+      let enterClass = dir > 0 ? 'enter-up' : 'enter-down';
+      newEl.classList.add(enterClass);
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          newEl.classList.remove(enterClass);
+          isAnimating = false;
+        });
+      });
+    } else {
+      isAnimating = false;
+    }
+  }, 350);
+}
+
+function nextCard() {
+  let vis = getVisibleCards();
+  if(currentIndex < vis.length - 1) {
+    animateTo(currentIndex + 1, 1);
+  } else {
+    // Generate more
+    for(let i=0;i<10;i++) {
+      let nc = generateCard();
+      if(!cards.find(c=>c.id===nc.id)) {
+        cards.push(nc);
+      }
+    }
+    animateTo(currentIndex + 1, 1);
+  }
+}
+
+function prevCard() {
+  if(currentIndex > 0) {
+    animateTo(currentIndex - 1, -1);
+  }
+}
+
+// ═══ SWIPE ═══
+let touchStartY = 0;
+let touchDeltaY = 0;
+let isSwiping = false;
+
+document.getElementById('card-area').addEventListener('touchstart',e=>{
+  touchStartY = e.touches[0].clientY;
+  isSwiping = true;
+}, {passive:true});
+
+document.getElementById('card-area').addEventListener('touchmove',e=>{
+  if(!isSwiping) return;
+  touchDeltaY = e.touches[0].clientY - touchStartY;
+  let card = document.getElementById('activeCard');
+  if(card) {
+    let pct = Math.min(Math.abs(touchDeltaY)/window.innerHeight*100, 50);
+    if(touchDeltaY > 0) {
+      card.style.transform = `translateY(${pct}vh) scale(${1-pct/200})`;
+      card.style.opacity = 1 - pct/60;
+    } else {
+      card.style.transform = `translateY(${-pct}vh) scale(${1-pct/200})`;
+      card.style.opacity = 1 - pct/60;
+    }
+  }
+}, {passive:true});
+
+document.getElementById('card-area').addEventListener('touchend',e=>{
+  isSwiping = false;
+  let card = document.getElementById('activeCard');
+  if(!card) return;
+  card.style.transform = '';
+  card.style.opacity = '';
+  if(Math.abs(touchDeltaY) > 80) {
+    if(touchDeltaY > 0) prevCard();
+    else nextCard();
+  }
+  touchDeltaY = 0;
+}, {passive:true});
+
+// ═══ TAP ═══
+document.getElementById('card-area').addEventListener('click',e=>{
+  if(isSwiping) return;
+  let rect = e.currentTarget.getBoundingClientRect();
+  let y = e.clientY - rect.top;
+  let h = rect.height;
+  if(y < h * 0.4) prevCard();
+  else if(y > h * 0.6) nextCard();
+});
+
+// ═══ KEYBOARD ═══
+document.addEventListener('keydown',e=>{
+  if(e.key === 'ArrowUp' || e.key === 'ArrowLeft') prevCard();
+  if(e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') nextCard();
+});
+
+// ═══ BOOKMARK ═══
+document.getElementById('bookmarkBtn').addEventListener('click',()=>{
+  let vis = getVisibleCards();
+  let card = vis[currentIndex];
+  if(!card) return;
+  let idx = bookmarks.indexOf(card.id);
+  if(idx >= 0) {
+    bookmarks.splice(idx,1);
+    showToast('Bookmark removed');
+    document.getElementById('bookmarkBtn').textContent = '🤍';
+    document.getElementById('bookmarkBtn').classList.remove('bookmarked');
+  } else {
+    bookmarks.push(card.id);
+    showToast('Bookmarked! ❤️');
+    document.getElementById('bookmarkBtn').textContent = '❤️';
+    document.getElementById('bookmarkBtn').classList.add('bookmarked');
+  }
+  localStorage.setItem('c152_bm',JSON.stringify(bookmarks));
+});
+
+// ═══ SHUFFLE ═══
+document.getElementById('shuffleBtn').addEventListener('click',()=>{
+  let vis = getVisibleCards();
+  if(vis.length < 2) return;
+  let idx = Math.floor(Math.random() * vis.length);
+  while(idx === currentIndex && vis.length > 1) {
+    idx = Math.floor(Math.random() * vis.length);
+  }
+  animateTo(idx, idx > currentIndex ? 1 : -1);
+  showToast('🔀 Shuffled!');
+});
+
+// ═══ SEARCH ═══
+document.getElementById('searchBtn').addEventListener('click',()=>{
+  openModal('Search', `<input class="search-input" id="searchInput" placeholder="Search topics..." inputmode="search" autocomplete="off" enterkeyhint="search">
+    <div class="search-results" id="searchResults"></div>`);
+  const inp = document.getElementById('searchInput');
+  inp.focus();
+  inp.addEventListener('input',()=>{
+    let q = inp.value.toLowerCase().trim();
+    let res = document.getElementById('searchResults');
+    if(!q) { res.innerHTML='<div class="empty-state">Type to search</div>'; return; }
+    let found = ALL_CARDS.filter(c => (c.title+' '+c.content+' '+(c.tip||'')).toLowerCase().includes(q));
+    if(found.length === 0) {
+      res.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div>No results</div>';
+      return;
+    }
+    res.innerHTML = found.slice(0,30).map(c => {
+      let cat = CAT_MAP[c.cat]||{};
+      return `<div class="bm-item" data-id="${c.id}"><span class="bm-emoji">${c.emoji||'📄'}</span><span class="bm-title">${c.title}</span><div class="bm-cat">${cat.name||''}</div></div>`;
+    }).join('');
+    res.querySelectorAll('.bm-item').forEach(el=>{
+      el.addEventListener('click',()=>{
+        closeModal();
+        savePosition();
+        filterCat = null;
+        document.getElementById('catSelector').value = '';
+        cards = [...ALL_CARDS];
+        let vis = getVisibleCards();
+        let id = el.dataset.id;
+        let newIdx = vis.findIndex(c=>c.id===id);
+        if(newIdx>=0) { currentIndex = newIdx; renderCard(newIdx); }
+      });
+    });
+  });
+});
+
+// ═══ QUIZ ═══
+document.getElementById('quizBtn').addEventListener('click',()=>{
+  let vis = getVisibleCards();
+  let card = vis[currentIndex];
+  if(!card || !card.quiz) {
+    // Start quiz mode from bookmarks or random
+    startFullQuiz();
+    return;
+  }
+  startSingleQuiz(card);
+});
+
+function startSingleQuiz(card) {
+  let q = card.quiz;
+  openModal('Quick Quiz', `<div class="quiz-card"><div class="q">${q.q}</div>
+    ${q.o.map((o,i)=>`<button class="quiz-option" data-idx="${i}">${o}</button>`).join('')}
+    <div class="quiz-result" id="quizResult"></div></div>`);
+  document.querySelectorAll('.quiz-option').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      let idx = parseInt(btn.dataset.idx);
+      let correct = idx === q.a;
+      document.querySelectorAll('.quiz-option').forEach(b=>{
+        let bi = parseInt(b.dataset.idx);
+        if(bi === q.a) b.classList.add('correct');
+        if(b === btn && !correct) b.classList.add('wrong');
+        b.disabled = true;
+      });
+      let res = document.getElementById('quizResult');
+      if(correct) {
+        res.innerHTML = '✅ Correct! +5 XP';
+        streak.xp += 5;
+      } else {
+        res.innerHTML = '❌ The answer was: ' + q.o[q.a];
+        streak.xp += 1;
+      }
+      localStorage.setItem('c152_streak',JSON.stringify(streak));
+      updateStreak();
+    });
+  });
+}
+
+function startFullQuiz() {
+  let qCards = ALL_CARDS.filter(c=>c.quiz);
+  if(qCards.length === 0) { showToast('No quiz cards available'); return; }
+  // Shuffle and pick 10
+  let shuffled = [...qCards].sort(()=>Math.random()-0.5).slice(0,10);
+  quizCards = shuffled;
+  quizIndex = 0;
+  quizScore = 0;
+  quizTotal = shuffled.length;
+  showQuizQuestion();
+}
+
+function showQuizQuestion() {
+  if(quizIndex >= quizCards.length) {
+    let pct = Math.round(quizScore/quizTotal*100);
+    openModal('Quiz Complete!', `<div class="quiz-result">🏆 You scored ${quizScore}/${quizTotal} (${pct}%)</div>
+      <div class="quiz-score"><div class="num">+${Math.round(quizScore*5)} XP</div><div class="label">earned from this quiz</div></div>
+      <button class="quiz-option" style="text-align:center;margin-top:16px" id="quizRetry">🔄 Try Again</button>`);
+    streak.xp += quizScore * 5;
+    localStorage.setItem('c152_streak',JSON.stringify(streak));
+    updateStreak();
+    document.getElementById('quizRetry')?.addEventListener('click',()=>{closeModal();startFullQuiz()});
+    return;
+  }
+  let card = quizCards[quizIndex];
+  let q = card.quiz;
+  openModal(`Quiz ${quizIndex+1}/${quizTotal}`, `<div class="quiz-card">
+    <div style="font-size:.7rem;color:#666;margin-bottom:8px">${card.title}</div>
+    <div class="q">${q.q}</div>
+    ${q.o.map((o,i)=>`<button class="quiz-option" data-idx="${i}">${o}</button>`).join('')}
+    <div class="quiz-result" id="quizResult"></div>
+    <div style="text-align:center;margin-top:8px;font-size:.8rem;color:#555">Score: ${quizScore}/${quizTotal}</div></div>`);
+  document.querySelectorAll('.quiz-option').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(btn.disabled) return;
+      let idx = parseInt(btn.dataset.idx);
+      let correct = idx === q.a;
+      document.querySelectorAll('.quiz-option').forEach(b=>{
+        let bi = parseInt(b.dataset.idx);
+        if(bi === q.a) b.classList.add('correct');
+        if(b === btn && !correct) b.classList.add('wrong');
+        b.disabled = true;
+      });
+      if(correct) quizScore++;
+      let res = document.getElementById('quizResult');
+      res.innerHTML = correct ? '✅ Correct!' : '❌ ' + q.o[q.a];
+      setTimeout(()=>{quizIndex++;showQuizQuestion()},1500);
+    });
+  });
+}
+
+// ═══ STREAK ═══
+function updateStreak() {
+  let today = new Date().toDateString();
+  if(streak.last !== today) {
+    let yesterday = new Date(Date.now()-86400000).toDateString();
+    if(streak.last === yesterday) {
+      streak.count++;
+    } else if(streak.last !== today) {
+      streak.count = 1;
+    }
+    streak.last = today;
+    localStorage.setItem('c152_streak',JSON.stringify(streak));
+  }
+}
+
+// ═══ BADGES ═══
+const BADGES = [
+  {id:'first',name:'First Steps',icon:'👶',req:()=>Object.keys(viewedCards).length>=1},
+  {id:'ten',name:'10 Cards',icon:'📖',req:()=>Object.keys(viewedCards).length>=10},
+  {id:'fifty',name:'Knowledge Seeker',icon:'🧠',req:()=>Object.keys(viewedCards).length>=50},
+  {id:'hundred',name:'Century',icon:'💯',req:()=>Object.keys(viewedCards).length>=100},
+  {id:'streak3',name:'3-Day Streak',icon:'🔥',req:()=>streak.count>=3},
+  {id:'streak7',name:'Week Warrior',icon:'⭐',req:()=>streak.count>=7},
+  {id:'streak14',name:'Dedicated',icon:'⚡',req:()=>streak.count>=14},
+  {id:'streak30',name:'Master Mechanic',icon:'🏆',req:()=>streak.count>=30},
+  {id:'xp100',name:'Apprentice',icon:'🔧',req:()=>streak.xp>=100},
+  {id:'xp500',name:'Journeyman',icon:'🛠️',req:()=>streak.xp>=500},
+  {id:'xp1000',name:'Expert',icon:'⚙️',req:()=>streak.xp>=1000},
+  {id:'bm5',name:'Collector',icon:'🔖',req:()=>bookmarks.length>=5},
+  {id:'bm20',name:'Librarian',icon:'📚',req:()=>bookmarks.length>=20},
+  {id:'allcats',name:'Explorer',icon:'🌍',req:()=>{let cats=new Set(Object.keys(viewedCards).map(id=>{let c=ALL_CARDS.find(cc=>cc.id===id);return c?c.cat:null}).filter(Boolean));return cats.size>=10}},
+  {id:'quiz10',name:'Quiz Taker',icon:'🧪',req:()=>streak.xp>=50&&quizTotal>=5},
+];
+function getLevel(xp) { return Math.floor(xp/50)+1; }
+
+// ═══ MODAL ═══
+const modalOverlay = document.getElementById('modal-overlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody = document.getElementById('modalBody');
+document.getElementById('modalClose').addEventListener('click',closeModal);
+
+function openModal(title, html) {
+  modalTitle.textContent = title;
+  modalBody.innerHTML = html;
+  modalOverlay.classList.add('active');
+}
+function closeModal() {
+  modalOverlay.classList.remove('active');
+}
+
+// ═══ BOTTOM NAV ═══
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    let view = btn.dataset.view;
+    if(view === 'feed') {
+      closeModal();
+    } else if(view === 'categories') {
+      showCategories();
+    } else if(view === 'bookmarks') {
+      showBookmarks();
+    } else if(view === 'profile') {
+      showProfile();
+    }
+  });
+});
+
+function showCategories() {
+  openModal('Topics', `<div class="cat-grid">${CATEGORIES.map(c=>{
+    let count = ALL_CARDS.filter(ca=>ca.cat===c.id).length;
+    let viewed = ALL_CARDS.filter(ca=>ca.cat===c.id).filter(ca=>viewedCards[ca.id]).length;
+    let pct = count>0 ? Math.round(viewed/count*100) : 0;
+    return `<div class="cat-item" data-cat="${c.id}">
+      <div class="cat-emoji">${c.emoji}</div>
+      <div class="cat-name">${c.name}</div>
+      <div class="cat-count">${viewed}/${count}</div>
+      <div class="cat-prog"><div class="cat-prog-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('')}</div>`);
+  document.querySelectorAll('.cat-item').forEach(el=>{
+    el.addEventListener('click',()=>{
+      closeModal();
+      filterByCategory(el.dataset.cat);
+    });
+  });
+}
+
+function showBookmarks() {
+  let items = bookmarks.map(id=>ALL_CARDS.find(c=>c.id===id)).filter(Boolean);
+  if(items.length===0) {
+    openModal('Bookmarks', '<div class="empty-state"><div class="empty-icon">🔖</div>No bookmarks yet</div>');
+    return;
+  }
+  openModal('Bookmarks', `<div class="bm-list">${items.map(c=>{
+    let cat = CAT_MAP[c.cat]||{};
+    return `<div class="bm-item" data-id="${c.id}">
+      <button class="bm-del" data-id="${c.id}">✕</button>
+      <span class="bm-emoji">${c.emoji||'📄'}</span>
+      <span class="bm-title">${c.title}</span>
+      <div class="bm-cat">${cat.name||''}</div>
+    </div>`;
+  }).join('')}</div>`);
+  document.querySelectorAll('.bm-item').forEach(el=>{
+    el.addEventListener('click',e=>{
+      if(e.target.classList.contains('bm-del')) return;
+      let id = el.dataset.id;
+      closeModal();
+      savePosition();
+      filterCat = null;
+      document.getElementById('catSelector').value = '';
+      cards = [...ALL_CARDS];
+      let vis = getVisibleCards();
+      let newIdx = vis.findIndex(c=>c.id===id);
+      if(newIdx>=0) { currentIndex = newIdx; renderCard(newIdx); }
+    });
+  });
+  document.querySelectorAll('.bm-del').forEach(el=>{
+    el.addEventListener('click',e=>{
+      e.stopPropagation();
+      let id = el.dataset.id;
+      bookmarks = bookmarks.filter(b=>b!==id);
+      localStorage.setItem('c152_bm',JSON.stringify(bookmarks));
+      showBookmarks();
+      showToast('Removed bookmark');
+    });
+  });
+}
+
+function showProfile() {
+  let lvl = getLevel(streak.xp);
+  let nextXp = lvl * 50;
+  let curXp = streak.xp - (lvl-1)*50;
+  let viewedCount = Object.keys(viewedCards).length;
+  let totalCards = ALL_CARDS.length;
+  let pct = Math.min(100, Math.round(viewedCount/totalCards*100));
+  let badgesHtml = BADGES.map(b=>{
+    let unlocked = b.req();
+    return `<div class="badge ${unlocked?'unlocked':'locked'}" title="${b.name}">${b.icon}<div class="badge-label">${unlocked?b.name:'???'}</div></div>`;
+  }).join('');
+  
+  openModal('Profile', `<div class="profile-header">
+    <div class="level">Lv.${lvl}</div>
+    <div class="level-label">${['Rookie','Apprentice','Mechanic','Journeyman','Expert','Master','Legend'][Math.min(lvl-1,6)]||'Ace'}</div>
+    <div class="xp-bar"><div class="xp-fill" style="width:${Math.min(100,curXp/nextXp*100)}%"></div></div>
+    <div class="xp-text">${streak.xp} XP total</div>
+  </div>
+  <div class="streak-display"><div class="streak-num">${streak.count}🔥</div><div class="streak-label">Day Streak</div></div>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="num">${viewedCount}</div><div class="label">Viewed</div></div>
+    <div class="stat-box"><div class="num">${bookmarks.length}</div><div class="label">Saved</div></div>
+    <div class="stat-box"><div class="num">${pct}%</div><div class="label">Complete</div></div>
+  </div>
+  <div style="font-size:.85rem;font-weight:600;margin:12px 0 8px">Badges (${BADGES.filter(b=>b.req()).length}/${BADGES.length})</div>
+  <div class="badge-grid">${badgesHtml}</div>
+  <button class="quiz-option" style="text-align:center;margin-top:16px" id="startQuizBtn">🧠 Start Quiz Mode</button>`);
+  document.getElementById('startQuizBtn')?.addEventListener('click',()=>{closeModal();startFullQuiz()});
+}
+
+// ═══ INIT ═══
+updateStreak();
+document.addEventListener('DOMContentLoaded',()=>{
+  requestAnimationFrame(()=>{
+    document.getElementById('splash').classList.add('hidden');
+    document.getElementById('app').classList.add('active');
+    cards = [...ALL_CARDS];
+    let savedFilter = localStorage.getItem('c152_lastFilter') || '';
+    filterCat = savedFilter || null;
+    if(filterCat) document.getElementById('catSelector').value = filterCat;
+    currentIndex = restorePosition(filterCat);
+    let vis = getVisibleCards();
+    if(vis.length) {
+      currentIndex = Math.min(currentIndex, vis.length - 1);
+      renderCard(currentIndex);
+    } else {
+      renderCard(0);
+    }
+  });
+});
+</script>
+</body>
+</html>
